@@ -2,6 +2,28 @@ const GroundWorkCategoryModel = require("../models/GroundWorkCategoryModel");
 const generateError = require("../helpers/generateError");
 const deleteFile = require("../helpers/deleteFile");
 
+exports.checkId = async (req, res, next, val) => {
+  try {
+    // console.log("param", val);
+    const groundwork = await GroundWorkCategoryModel.findById(val);
+    if (!groundwork)
+      return generateError(
+        req,
+        res,
+        400,
+        "No groundwprk category was found with provided id"
+      );
+    req.groundwork = groundwork;
+    next();
+    // const checkId = await FreshBloom.findById(val);
+  } catch (err) {
+    return res.status(400).json({
+      status: "failed",
+      error: err.message,
+    });
+  }
+};
+
 exports.createGroundWorkCategory = async (req, res) => {
   try {
     // 1 : Get data from req.body
@@ -36,16 +58,8 @@ exports.createGroundWorkCategory = async (req, res) => {
 
 exports.updateGroundWorkCategory = async (req, res) => {
   try {
-    const { id } = req.params;
+    const gwCategory = req.groundwork;
     let { icon } = req.body;
-    const gwCategory = await GroundWorkCategoryModel.findById(id);
-    if (!gwCategory)
-      return generateError(
-        req,
-        res,
-        400,
-        "No groundwork category was found with provided id"
-      );
     if (!icon) icon = gwCategory.icon;
     const basePath = `${req.protocol}://${req.get("host")}/uploads/`;
 
@@ -58,7 +72,7 @@ exports.updateGroundWorkCategory = async (req, res) => {
     }
 
     const updatedGWCategory = await GroundWorkCategoryModel.findByIdAndUpdate(
-      id,
+      gwCategory._id,
       {
         ...req.body,
         icon,
@@ -79,19 +93,11 @@ exports.updateGroundWorkCategory = async (req, res) => {
 
 exports.deleteGroundWorkCategory = async (req, res) => {
   try {
-    const { id } = req.params;
-    const gwCategory = await GroundWorkCategoryModel.findById(id);
-    if (!gwCategory)
-      return generateError(
-        req,
-        res,
-        400,
-        "No groundwork category was found with provided id"
-      );
+    const gwCategory = req.groundwork;
     let imgPath = gwCategory.icon.split("/uploads").pop();
     imgPath = `${__dirname}/../uploads${imgPath}`;
     deleteFile(imgPath);
-    await GroundWorkCategoryModel.findByIdAndDelete(id);
+    await GroundWorkCategoryModel.findByIdAndDelete(gwCategory._id);
     return res.status(200).json({
       status: "success",
       message: `${gwCategory.title} category has been deleted successfully`,

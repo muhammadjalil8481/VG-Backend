@@ -2,6 +2,28 @@ const GroundWorkVideoModel = require("../models/GroundWorkVideoModel");
 const generateError = require("../helpers/generateError");
 const deleteFile = require("../helpers/deleteFile");
 
+exports.checkId = async (req, res, next, val) => {
+  try {
+    // console.log("param", val);
+    const groundWorkVideo = await GroundWorkVideoModel.findById(val);
+    if (!groundWorkVideo)
+      return generateError(
+        req,
+        res,
+        400,
+        "No groundwprk category was found with provided id"
+      );
+    req.groundWorkVideo = groundWorkVideo;
+    next();
+    // const checkId = await FreshBloom.findById(val);
+  } catch (err) {
+    return res.status(400).json({
+      status: "failed",
+      error: err.message,
+    });
+  }
+};
+
 exports.createGroundWorkVideo = async (req, res) => {
   try {
     // 1 : Check and get data from body
@@ -68,16 +90,7 @@ exports.updateGroundWorkVideo = async (req, res) => {
       additionalResources,
       teachers,
     } = req.body;
-
-    const { id } = req.params;
-    const groundworkVideo = await GroundWorkVideoModel.findById(id);
-    if (!groundworkVideo)
-      return generateError(
-        req,
-        res,
-        400,
-        "No groundwork video was found with provided id"
-      );
+    const groundworkVideo = req.groundWorkVideo;
 
     const basePath = `${req.protocol}://${req.get("host")}/uploads/`;
     if (req.files["thumbnail"]) {
@@ -107,7 +120,7 @@ exports.updateGroundWorkVideo = async (req, res) => {
     if (!teachers) teachers = groundworkVideo.teachers;
 
     const updateGroundWorkVideo = await GroundWorkVideoModel.findByIdAndUpdate(
-      id,
+      groundworkVideo._id,
       {
         ...req.body,
         thumbnail,
@@ -132,15 +145,7 @@ exports.updateGroundWorkVideo = async (req, res) => {
 
 exports.deleteGroundWorkVideo = async (req, res) => {
   try {
-    const { id } = req.params;
-    const groundworkVideo = await GroundWorkVideoModel.findById(id);
-    if (!groundworkVideo)
-      return generateError(
-        req,
-        res,
-        400,
-        "No groundwork video was found with provided id"
-      );
+    const groundworkVideo = req.groundWorkVideo;
     let imgPath = groundworkVideo.thumbnail.split("/uploads").pop();
     imgPath = `${__dirname}/../uploads${imgPath}`;
     let videoPath = groundworkVideo.video.split("/uploads").pop();
@@ -149,7 +154,7 @@ exports.deleteGroundWorkVideo = async (req, res) => {
     deleteFile(imgPath);
     deleteFile(videoPath);
 
-    await GroundWorkVideoModel.findByIdAndDelete(id);
+    await GroundWorkVideoModel.findByIdAndDelete(groundworkVideo._id);
     return res.status(200).json({
       status: "success",
       message: `${groundworkVideo.title} video has been deleted successfully`,

@@ -2,6 +2,27 @@ const Tag = require("../models/TagModel");
 const generateError = require("../helpers/generateError");
 const deleteFile = require("../helpers/deleteFile");
 
+exports.checkId = async (req, res, next, val) => {
+  try {
+    // console.log("param", val);
+    const tag = await Tag.findById(val);
+    if (!tag)
+      return generateError(
+        req,
+        res,
+        400,
+        "No groundwprk category was found with provided id"
+      );
+    req.tag = tag;
+    next();
+    // const checkId = await FreshBloom.findById(val);
+  } catch (err) {
+    return res.status(400).json({
+      status: "failed",
+      error: err.message,
+    });
+  }
+};
 exports.createTag = async (req, res) => {
   try {
     // 1 : get data from req.body
@@ -34,16 +55,8 @@ exports.createTag = async (req, res) => {
 
 exports.updateTag = async (req, res) => {
   try {
-    const { id } = req.params;
+    const tag = req.tag;
     let { image } = req.body;
-    const tag = await Tag.findById(id);
-    if (!tag)
-      return generateError(
-        req,
-        res,
-        400,
-        "failed to find any tag with id " + id
-      );
     if (!image) image = tag.image;
     const basePath = `${req.protocol}://${req.get("host")}/uploads/`;
     if (req.file) {
@@ -55,7 +68,7 @@ exports.updateTag = async (req, res) => {
     }
 
     const updatedTag = await Tag.findByIdAndUpdate(
-      id,
+      tag._id,
       {
         ...req.body,
         image: image,
@@ -76,20 +89,12 @@ exports.updateTag = async (req, res) => {
 
 exports.deleteTag = async (req, res) => {
   try {
-    const { id } = req.params;
-    const tag = await Tag.findById(id);
-    if (!tag)
-      return generateError(
-        req,
-        res,
-        400,
-        "failed to find any tag with id " + id
-      );
+    const tag = req.tag;
     const basePath = `${req.protocol}://${req.get("host")}/uploads/`;
     let imgPath = tag.image.split("/uploads").pop();
     imgPath = `${__dirname}/../uploads${imgPath}`;
     deleteFile(imgPath);
-    await Tag.findByIdAndDelete(id);
+    await Tag.findByIdAndDelete(tag._id);
     return res.status(200).json({
       status: "success",
       message: `Tag ${tag.name} has been deleted successfully`,

@@ -6,21 +6,21 @@ const fileTypes = [".png", ".jpg", ".jpeg", ".svg", ".mp4"];
 
 const storage = multer.diskStorage({
   destination: (req, file, cb) => {
-    console.log("in destination: ");
     const extname = path.extname(file.originalname);
     const isValid = fileTypes.includes(extname);
     // Check file type and give destination if correct
     if (!isValid) {
       return cb("Error : only images are allowed");
     } else {
+      console.log("in destination: " + file.originalname);
       return cb(null, "uploads");
     }
   },
 
   filename: (req, file, cb) => {
-    console.log("in filename");
     const filename = path.parse(file.originalname).name;
     const extname = path.extname(file.originalname);
+    console.log("in filename", filename);
     cb(null, `${filename.replace(/\s+/g, "_")}-${Date.now()}${extname}`);
   },
 });

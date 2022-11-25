@@ -2,6 +2,27 @@ const generateError = require("../helpers/generateError");
 const Teacher = require("../models/TeacherModel");
 const deleteFile = require("../helpers/deleteFile");
 
+exports.checkId = async (req, res, next, val) => {
+  try {
+    // console.log("param", val);
+    const teacher = await Teacher.findById(val);
+    if (!teacher)
+      return generateError(
+        req,
+        res,
+        400,
+        "No groundwprk category was found with provided id"
+      );
+    req.teacher = teacher;
+    next();
+    // const checkId = await FreshBloom.findById(val);
+  } catch (err) {
+    return res.status(400).json({
+      status: "failed",
+      error: err.message,
+    });
+  }
+};
 exports.createTeacher = async (req, res) => {
   try {
     // 1 : Get the data from body
@@ -44,16 +65,9 @@ exports.createTeacher = async (req, res) => {
 
 exports.updateTeacher = async (req, res) => {
   try {
-    const { id } = req.params;
+    const teacher = req.teacher;
+
     let { image, video } = req.body;
-    const teacher = await Teacher.findById(id);
-    if (!teacher)
-      return generateError(
-        req,
-        res,
-        400,
-        "Could not find teacher with id: " + id
-      );
     if (!image) image = teacher.image;
     if (!video) video = teacher.video;
 
@@ -75,7 +89,7 @@ exports.updateTeacher = async (req, res) => {
     }
 
     const updatedVideo = await Teacher.findByIdAndUpdate(
-      id,
+      teacher._id,
       {
         ...req.body,
         video,
@@ -97,16 +111,8 @@ exports.updateTeacher = async (req, res) => {
 
 exports.deleteTeacher = async (req, res) => {
   try {
-    const { id } = req.params;
+    const teacher = req.teacher;
     let { image, video } = req.body;
-    const teacher = await Teacher.findById(id);
-    if (!teacher)
-      return generateError(
-        req,
-        res,
-        400,
-        "Could not find teacher with id: " + id
-      );
 
     let imgPath = teacher.image.split("/uploads").pop();
     imgPath = `${__dirname}/../uploads${imgPath}`;
@@ -116,7 +122,7 @@ exports.deleteTeacher = async (req, res) => {
     deleteFile(imgPath);
     deleteFile(videoPath);
 
-    await Teacher.findByIdAndDelete(id);
+    await Teacher.findByIdAndDelete(teacher._id);
     return res.status(200).json({
       status: "success",
       message: "Teacher deleted successfully",

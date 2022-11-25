@@ -2,6 +2,27 @@ const FreshBloom = require("../models/FreshBloomsModel");
 const generateError = require("../helpers/generateError");
 const deleteFile = require("../helpers/deleteFile");
 
+exports.checkId = async (req, res, next, val) => {
+  try {
+    // console.log("param", val);
+    const fb = await FreshBloom.findById(val);
+    if (!fb)
+      return generateError(
+        req,
+        res,
+        400,
+        "No freshBloom video was found with provided id"
+      );
+    req.freshBloom = fb;
+    next();
+    // const checkId = await FreshBloom.findById(val);
+  } catch (err) {
+    return res.status(400).json({
+      status: "failed",
+      error: err.message,
+    });
+  }
+};
 exports.createFreshBloomVideo = async (req, res) => {
   try {
     const {
@@ -44,17 +65,9 @@ exports.createFreshBloomVideo = async (req, res) => {
 
 exports.updateFreshBloomsVideo = async (req, res) => {
   try {
-    const { id } = req.params;
-    let { thumbnail, video } = req.body;
-    const freshBloomVideo = await FreshBloom.findById(id);
-    if (!freshBloomVideo)
-      return generateError(
-        req,
-        res,
-        400,
-        "No freshBloom video was found with provided id"
-      );
+    const freshBloomVideo = req.freshBloom;
 
+    let { thumbnail, video } = req.body;
     if (!thumbnail) thumbnail = freshBloomVideo.thumbnail;
     if (!video) video = freshBloomVideo.video;
 
@@ -74,7 +87,7 @@ exports.updateFreshBloomsVideo = async (req, res) => {
       video = `${basePath}${videofile}`;
     }
     const updateFreshBloomsVideo = await FreshBloom.findByIdAndUpdate(
-      id,
+      freshBloomVideo._id,
       {
         ...req.body,
         thumbnail,
@@ -96,15 +109,7 @@ exports.updateFreshBloomsVideo = async (req, res) => {
 
 exports.deleteFreshBloomVideo = async (req, res) => {
   try {
-    const { id } = req.params;
-    const freshBloomVideo = await FreshBloom.findById(id);
-    if (!freshBloomVideo)
-      return generateError(
-        req,
-        res,
-        400,
-        "No freshBloom video was found with provided id"
-      );
+    const freshBloomVideo = req.freshBloom;
     let imgPath = freshBloomVideo.thumbnail.split("/uploads").pop();
     imgPath = `${__dirname}/../uploads${imgPath}`;
     let videoPath = freshBloomVideo.video.split("/uploads").pop();
@@ -113,11 +118,63 @@ exports.deleteFreshBloomVideo = async (req, res) => {
     deleteFile(imgPath);
     deleteFile(videoPath);
 
-    await FreshBloom.findByIdAndDelete(id);
+    await FreshBloom.findByIdAndDelete(freshBloomVideo._id);
     return res.status(200).json({
       status: "success",
       message: `${freshBloomVideo.title} video has been deleted successfully`,
     });
+  } catch (err) {
+    return res.status(400).json({
+      status: "failed",
+      error: err.message,
+    });
+  }
+};
+
+exports.getAllFreshBloomsVideo = async (req, res) => {
+  try {
+    const freshBloomVideos = await FreshBloom.find().populate("tags", "name");
+    return res.status(200).json({
+      status: "success",
+      numOfVideos: freshBloomVideos.length,
+      freshBloomVideos,
+    });
+  } catch (err) {
+    return res.status(400).json({
+      status: "failed",
+      error: err.message,
+    });
+  }
+};
+
+exports.getFreshBloomVideo = async (req, res) => {
+  try {
+    const freshBloomVideo = await FreshBloom.findById(req.params.id).populate(
+      "tags",
+      "name"
+    );
+    if (!freshBloomVideo)
+      return generateError(
+        req,
+        res,
+        400,
+        "No fresh bloom video found with id" + req.params.id
+      );
+    return res.status(200).json({
+      status: "success",
+      freshBloomVideo,
+    });
+  } catch (err) {
+    return res.status(400).json({
+      status: "failed",
+      error: err.message,
+    });
+  }
+};
+
+exports.getFreshBloomVideoByType = async (req, res) => {
+  try {
+    // const freshBloomVideos = await FreshBloom.find({type : req.params.type})
   } catch (err) {
     return res.status(400).json({
       status: "failed",

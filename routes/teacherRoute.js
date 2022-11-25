@@ -3,11 +3,14 @@ const {
   createTeacher,
   updateTeacher,
   deleteTeacher,
+  checkId,
 } = require("../controllers/teacherController");
 const checkTags = require("../middlewares/checkTags");
 const uploadOptions = require("../middlewares/multer");
 
 const router = express.Router();
+
+router.param("id", checkId);
 router.post(
   "/createTeacher",
   uploadOptions.fields([

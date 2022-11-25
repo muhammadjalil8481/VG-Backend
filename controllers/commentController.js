@@ -4,6 +4,27 @@ const GroundWorkVideoModel = require("../models/GroundWorkVideoModel");
 const ToolVideoModel = require("../models/ToolVideoModel");
 const UserModal = require("../models/UserModel");
 
+exports.checkId = async (req, res, next, val) => {
+  try {
+    // console.log("param", val);
+    const comment = await Comment.findById(val);
+    if (!comment)
+      return generateError(
+        req,
+        res,
+        400,
+        "No comment was found with provided id"
+      );
+    req.comment = comment;
+    next();
+    // const checkId = await FreshBloom.findById(val);
+  } catch (err) {
+    return res.status(400).json({
+      status: "failed",
+      error: err.message,
+    });
+  }
+};
 exports.createComment = async (req, res) => {
   try {
     const { user, docModel, comment, postId } = req.body;
@@ -81,15 +102,8 @@ exports.getAllComments = async (req, res) => {
 
 exports.replyComment = async (req, res) => {
   try {
-    const { id } = req.params;
-    const checkCommentExist = await Comment.findById(id);
-    if (!checkCommentExist)
-      return generateError(
-        req,
-        res,
-        400,
-        "No comment was found with provided id"
-      );
+    const checkCommentExist = req.comment;
+
     const { user, docModel, comment, postId } = req.body;
     const reply = await Comment.create({
       user,
@@ -98,7 +112,7 @@ exports.replyComment = async (req, res) => {
       postId,
     });
     const attachReply = await Comment.findByIdAndUpdate(
-      id,
+      checkCommentExist._id,
       {
         reply: [...checkCommentExist.reply, reply._id],
       },
@@ -114,4 +128,15 @@ exports.replyComment = async (req, res) => {
       error: err.message,
     });
   }
+};
+
+exports.deleteComment = async (req, res) => {
+  try {
+    const checkCommentExist = req.comment;
+    await Comment.findByIdAndDelete(checkCommentExist._id);
+    res.status(200).json({
+      status: "success",
+      message: `Comment has been deleted successfully`,
+    });
+  } catch (err) {}
 };

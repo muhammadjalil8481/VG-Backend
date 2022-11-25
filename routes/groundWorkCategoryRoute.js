@@ -5,9 +5,11 @@ const {
   createGroundWorkCategory,
   updateGroundWorkCategory,
   deleteGroundWorkCategory,
+  checkId,
 } = require("../controllers/groundWorkCategoryController");
 
 const router = express.Router();
+router.param("id", checkId);
 router.post(
   "/createGroundWorkCategory",
   // uploadOptions.single("icon"),

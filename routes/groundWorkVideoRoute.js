@@ -8,9 +8,11 @@ const {
   createGroundWorkVideo,
   updateGroundWorkVideo,
   deleteGroundWorkVideo,
+  checkId,
 } = require("../controllers/groundWorkVideoController");
 
 const router = express.Router();
+router.param("id", checkId);
 router.post(
   "/createGroundWorkVideo",
   uploadOptions.fields([

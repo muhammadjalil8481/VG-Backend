@@ -17,19 +17,38 @@ exports.getAllUsers = async (req, res) => {
   }
 };
 
+exports.activateEmailSubscription = async (req, res) => {
+  try {
+    const { email } = req.body;
+  } catch (err) {
+    return res.status(400).json({
+      status: "failed",
+      error: err.message,
+    });
+  }
+};
+
 exports.updateAvatar = async (req, res) => {
   try {
     // 1 : Get avatar from req.body
-    const { avatar, email } = req.body;
-    if (!avatar || !email)
+    const { id } = req.params;
+    const { avatar } = req.body;
+    if (!avatar)
       return generateError(req, res, 400, "Please provide required data");
 
     // 2 : Update avatar
-    const updatedUser = await User.findOneAndUpdate(
-      { email },
-      { avatar: avatar },
+    const updatedUser = await User.findByIdAndUpdate(
+      id,
+      { avatar },
       { new: true, runValidators: true }
     );
+    if (!updatedUser)
+      return generateError(
+        req,
+        res,
+        400,
+        "Failed to update avatar, please check if id is valid"
+      );
     // 3 : Finally return the upated user
     return res.status(201).json({
       status: "success",
@@ -45,16 +64,26 @@ exports.updateAvatar = async (req, res) => {
 
 exports.updateBloom = async (req, res) => {
   try {
-    // 1 : Get bloom from req.body
-    const { bloom, email } = req.body;
-    if (!bloom || !email)
+    // 1 : Get avatar from req.body
+    const { id } = req.params;
+    const { bloom } = req.body;
+    if (!bloom)
       return generateError(req, res, 400, "Please provide required data");
 
-    const updatedUser = await User.findOneAndUpdate(
-      { email },
-      { bloom: bloom },
+    // 2 : Update avatar
+    const updatedUser = await User.findByIdAndUpdate(
+      id,
+      { bloom },
       { new: true, runValidators: true }
     );
+    if (!updatedUser)
+      return generateError(
+        req,
+        res,
+        400,
+        "Failed to update bloom, please check if id is valid"
+      );
+    // 3 : Finally return the upated user
     return res.status(201).json({
       status: "success",
       updatedUser,
@@ -69,15 +98,23 @@ exports.updateBloom = async (req, res) => {
 
 exports.updateBloomPercentage = async (req, res) => {
   try {
-    const { bloomPercentage, email } = req.body;
-    if (!bloomPercentage || !email)
+    const { id } = req.params;
+    const { bloomPercentage } = req.body;
+    if (!bloomPercentage)
       return generateError(req, res, 400, "Please provide required data");
 
-    const updatedUser = await User.findOneAndUpdate(
-      { email },
-      { bloomPercentage: bloomPercentage },
+    const updatedUser = await User.findByIdAndUpdate(
+      id,
+      { bloomPercentage },
       { new: true, runValidators: true }
     );
+    if (!updatedUser)
+      return generateError(
+        req,
+        res,
+        400,
+        "Failed to update bloom Percentage, please check if id is valid"
+      );
     return res.status(201).json({
       status: "success",
       updatedUser,
@@ -161,6 +198,35 @@ exports.updateAboutInfo = async (req, res) => {
     return res.status(201).json({
       status: "success",
       updatedUser,
+    });
+  } catch (err) {
+    return res.status(400).json({
+      status: "failed",
+      error: err.message,
+    });
+  }
+};
+
+exports.makeUserAdmin = async (req, res) => {
+  try {
+    const { id } = req.params;
+    const updatedAdmin = await User.findByIdAndUpdate(
+      id,
+      {
+        isAdmin: true,
+      },
+      { new: true }
+    );
+    if (!updatedAdmin)
+      return generateError(
+        req,
+        res,
+        400,
+        "Failed to update user , make sure that id is valid"
+      );
+    return res.status(200).json({
+      status: "success",
+      updatedAdmin,
     });
   } catch (err) {
     return res.status(400).json({

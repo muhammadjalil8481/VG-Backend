@@ -5,9 +5,11 @@ const {
   createTag,
   updateTag,
   deleteTag,
+  checkId,
 } = require("../controllers/tagController");
 
 const router = express.Router();
+router.param("id", checkId);
 router.post(
   "/createTag",
   uploadOptions.single("image"),

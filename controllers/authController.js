@@ -4,7 +4,7 @@ const jwt = require("jsonwebtoken");
 const otpGenerator = require("../helpers/generateOTP");
 const User = require("../models/UserModel");
 const PaymentMethod = require("../models/PaymentModel");
-const sendMail = require("../helpers/sendMail");
+const { sendMail } = require("../helpers/sendMail");
 const bcrypt = require("bcrypt");
 const generateError = require("../helpers/generateError");
 
@@ -119,7 +119,6 @@ exports.registerUser = async (req, res) => {
 
     // 6 : Generate OTP and send email
     const otp = otpGenerator();
-    sendMail(otp, email);
 
     // 7: Finally create the user and save to database but unverified
     const newUser = await User.create({
@@ -128,7 +127,9 @@ exports.registerUser = async (req, res) => {
       lastName: lastNameCap,
       otp: otp,
       password: encryptedPassword,
+      isAdmin: false,
     });
+    sendMail(otp, email);
 
     return res.status(201).json({
       status: "passed",
@@ -382,7 +383,7 @@ exports.acceptPay = async (req, res) => {
     const subDate = new Date();
     const expDate = new Date();
     expDate.setDate(expDate.getDate() + (packageType === "monthly" ? 30 : 365));
-    console.log(subDate, expDate);
+    // console.log(subDate, expDate);
     const acceptPay = await PaymentMethod.create({
       ...req.body,
       subsciptionStatus: "active",
@@ -408,3 +409,5 @@ exports.acceptPay = async (req, res) => {
     });
   }
 };
+
+

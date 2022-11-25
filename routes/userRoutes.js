@@ -1,18 +1,20 @@
 const express = require("express");
-const protectRoute = require("../middlewares/protectRoute");
+const { protectRouteWithAdmin } = require("../middlewares/protectRoute");
 const {
   updateAvatar,
   updateBloom,
   updateBloomPercentage,
   updateAboutInfo,
   getAllUsers,
+  makeUserAdmin,
 } = require("../controllers/userController");
 
 const router = express.Router();
-router.post("/updateAvatar", updateAvatar);
-router.post("/updateBloom", updateBloom);
-router.post("/updateBloomPercentage", updateBloomPercentage);
+router.patch("/updateAvatar/:id", updateAvatar);
+router.patch("/updateBloom/:id", updateBloom);
+router.patch("/updateBloomPercentage/:id", updateBloomPercentage);
 router.post("/updateAboutInfo", updateAboutInfo);
+router.patch("/makeUserAdmin/:id", makeUserAdmin);
 // router.get("/getAllUsers", protectRoute, getAllUsers);
 
 module.exports = router;

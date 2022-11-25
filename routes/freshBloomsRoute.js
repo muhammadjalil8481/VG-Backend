@@ -5,10 +5,13 @@ const {
   createFreshBloomVideo,
   updateFreshBloomsVideo,
   deleteFreshBloomVideo,
+  getAllFreshBloomsVideo,
+  getFreshBloomVideo,
+  checkId,
 } = require("../controllers/freshBloomsController");
 
 const router = express.Router();
-
+router.param("id", checkId);
 router.post(
   "/createFreshBloomVideo",
   uploadOptions.fields([
@@ -28,6 +31,9 @@ router.patch(
   checkTags,
   updateFreshBloomsVideo
 );
+
+router.get("/getFreshBloomVideos", getAllFreshBloomsVideo);
+router.get("/getFreshBloomVideo/:id", getFreshBloomVideo);
 
 router.delete("/deleteFreshBloomVideo/:id", deleteFreshBloomVideo);
 

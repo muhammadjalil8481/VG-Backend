@@ -16,6 +16,12 @@ const teacherRouter = require("./routes/teacherRoute");
 const freshBloomsRouter = require("./routes/freshBloomsRoute");
 const commentsRouter = require("./routes/commentRoute");
 const scheduleRouter = require("./routes/scheduleRoutes");
+const homePageRouter = require("./routes/homePageRoute");
+const gwPageRouter = require("./routes/groundWorkPageRoute");
+const toolsPageRouter = require("./routes/toolsPageRoute");
+const guidesPageRouter = require("./routes/guidesPageRoute");
+const cgPageRouter = require("./routes/communityGardenPageRoute");
+const extrasRoute = require("./routes/extrasRoute");
 const deleteUnverifiedUsers = require("./middlewares/deleteUnverifiedUsers");
 
 // MIDDLEWARES
@@ -39,9 +45,10 @@ app.use("/uploads", express.static("uploads"));
 dotenv.config("./config.env");
 
 // Run Scheduler To Delete Unverified Users
-// cron.schedule(" * */20 * * * *", () => {
-//   deleteUnverifiedUsers();
-// });
+cron.schedule(" 0 */10 * * * *", () => {
+  deleteUnverifiedUsers();
+  // console.log("delete users");
+});
 
 // LISTEN TO SERVER
 app.listen(process.env.PORT || 3000, () =>
@@ -74,3 +81,9 @@ app.use(apiRoute, teacherRouter);
 app.use(apiRoute, freshBloomsRouter);
 app.use(apiRoute, commentsRouter);
 app.use(apiRoute, scheduleRouter);
+app.use(apiRoute, homePageRouter);
+app.use(apiRoute, gwPageRouter);
+app.use(apiRoute, toolsPageRouter);
+app.use(apiRoute, guidesPageRouter);
+app.use(apiRoute, cgPageRouter);
+app.use(apiRoute, extrasRoute);

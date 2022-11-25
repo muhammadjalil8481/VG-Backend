@@ -12,10 +12,28 @@ const mailSettings = {
   },
 };
 
-module.exports = async function sendMail(
-  otp,
-  email = "thisismjalil@gmail.com"
-) {
+exports.sendSubscriptionEmail = async (email = "thisismjalil@gmail.com") => {
+  const emailRegex = /^\w+([\.-]?\w+)*@\w+([\.-]?\w+)*(\.\w{2,3})+$/;
+  if (!emailRegex.test(email)) {
+    return "Please provide correct email address";
+  }
+  const transporter = nodemailer.createTransport(mailSettings);
+  await transporter.sendMail({
+    from: mailSettings.auth.user,
+    to: email,
+    subject: "VibeGarden Updates Subscription",
+    html: `
+    <div
+      class="container"
+      style="max-width: 90%; margin: auto; padding-top: 20px"
+    >
+      <h2>Congratulations</h2>
+      <h2 style="font-size: 40px; letter-spacing: 2px; text-align:center;">You have been subscribed to vibegarden updates</h2>
+ </div>
+  `,
+  });
+};
+exports.sendMail = async (otp, email = "thisismjalil@gmail.com") => {
   const emailRegex = /^\w+([\.-]?\w+)*@\w+([\.-]?\w+)*(\.\w{2,3})+$/;
   if (!emailRegex.test(email)) {
     return "Please provide correct email address";

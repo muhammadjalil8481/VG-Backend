@@ -41,7 +41,6 @@ const userSchema = new mongoose.Schema(
       default: false,
     },
     otp: {
-      
       type: String,
     },
     paymentMethod: {
@@ -52,7 +51,7 @@ const userSchema = new mongoose.Schema(
     profileImage: {
       type: String,
     },
-  
+
     avatar: {
       type: String,
       enum: [
@@ -72,6 +71,10 @@ const userSchema = new mongoose.Schema(
       type: Number,
       min: 1,
       max: 100,
+    },
+    emailSubscription: {
+      type: Boolean,
+      default: false,
     },
   },
   { timestamps: true }

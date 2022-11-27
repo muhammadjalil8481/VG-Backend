@@ -133,7 +133,37 @@ exports.deleteFreshBloomVideo = async (req, res) => {
 
 exports.getAllFreshBloomsVideo = async (req, res) => {
   try {
-    const freshBloomVideos = await FreshBloom.find().populate("tags", "name");
+    // let query = { ...req.query };
+    // const excludedFields = ["sort", "page", "limit", "fields"];
+    // excludedFields.map((field) => delete query[field]);
+    // query = JSON.stringify(query);
+    // query = query.replace(/\b(gt|gte|lt|lte)\b/g, (match) => `$${match}`);
+    // query = JSON.parse(query);
+    // // console.log(query);
+
+    // let result = FreshBloom.find(query);
+    // if (req.query.sort) {
+    //   const sortBy = req.query?.sort?.split(",").join(" ");
+    //   // console.log("sort", req.query, sortBy);
+    //   result = result.sort(sortBy);
+    // }
+    // if (req.query.fields) {
+    //   const fields = req.query.fields.split(",").join(" ");
+    //   result = result.select(fields);
+    // }
+
+    // if (req.query.page && req.query.limit) {
+    //   const limit = req.query.limit * 1;
+    //   const page = req.query.page * 1;
+    //   const skip = limit * (page - 1);
+    //   const totalDocs = await FreshBloom.countDocuments();
+    //   if (skip >= totalDocs)
+    //     return generateError(req, res, 400, "This page does not exist");
+    //   result = result.skip(skip).limit(limit);
+    // }
+    const result = req.result;
+    // console.log("mlw", result);
+    const freshBloomVideos = await result.populate("tags", "name");
     return res.status(200).json({
       status: "success",
       numOfVideos: freshBloomVideos.length,
@@ -172,13 +202,13 @@ exports.getFreshBloomVideo = async (req, res) => {
   }
 };
 
-exports.getFreshBloomVideoByType = async (req, res) => {
-  try {
-    // const freshBloomVideos = await FreshBloom.find({type : req.params.type})
-  } catch (err) {
-    return res.status(400).json({
-      status: "failed",
-      error: err.message,
-    });
-  }
-};
+// exports.getFreshBloomVideoByType = async (req, res) => {
+//   try {
+//     // const freshBloomVideos = await FreshBloom.find({type : req.params.type})
+//   } catch (err) {
+//     return res.status(400).json({
+//       status: "failed",
+//       error: err.message,
+//     });
+//   }
+// };

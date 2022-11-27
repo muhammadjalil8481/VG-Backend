@@ -1,6 +1,8 @@
 const express = require("express");
 const uploadOptions = require("../middlewares/multer");
 const checkTags = require("../middlewares/checkTags");
+const { queryOperations } = require("../middlewares/queryOperations");
+const FreshBloomsModel = require("../models/FreshBloomsModel");
 const {
   createFreshBloomVideo,
   updateFreshBloomsVideo,
@@ -32,7 +34,11 @@ router.patch(
   updateFreshBloomsVideo
 );
 
-router.get("/getFreshBloomVideos", getAllFreshBloomsVideo);
+router.get(
+  "/getFreshBloomVideos",
+  queryOperations(FreshBloomsModel),
+  getAllFreshBloomsVideo
+);
 router.get("/getFreshBloomVideo/:id", getFreshBloomVideo);
 
 router.delete("/deleteFreshBloomVideo/:id", deleteFreshBloomVideo);

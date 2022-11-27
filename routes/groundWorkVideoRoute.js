@@ -3,6 +3,7 @@ const uploadOptions = require("../middlewares/multer");
 const checkGroundWorkCategory = require("../middlewares/checkGroundWorkCategory");
 const checkTags = require("../middlewares/checkTags");
 const checkTeachers = require("../middlewares/checkTeachers");
+const { queryOperations } = require("../middlewares/queryOperations");
 const checkGroundWorkVideos = require("../middlewares/checkRelatedGroundWorkVideos");
 const {
   createGroundWorkVideo,

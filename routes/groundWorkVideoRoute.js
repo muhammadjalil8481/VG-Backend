@@ -5,15 +5,23 @@ const checkTags = require("../middlewares/checkTags");
 const checkTeachers = require("../middlewares/checkTeachers");
 const { queryOperations } = require("../middlewares/queryOperations");
 const checkGroundWorkVideos = require("../middlewares/checkRelatedGroundWorkVideos");
+const GroundWorkVideoModel = require("../models/GroundWorkVideoModel");
 const {
   createGroundWorkVideo,
   updateGroundWorkVideo,
   deleteGroundWorkVideo,
+  getAllGroundWorkVideos,
   checkId,
 } = require("../controllers/groundWorkVideoController");
 
 const router = express.Router();
 router.param("id", checkId);
+
+router.get(
+  "/getAllGroundWorkVideos",
+  queryOperations(GroundWorkVideoModel),
+  getAllGroundWorkVideos
+);
 router.post(
   "/createGroundWorkVideo",
   uploadOptions.fields([

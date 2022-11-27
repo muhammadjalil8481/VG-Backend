@@ -2,6 +2,23 @@ const ToolVideoModel = require("../models/ToolVideoModel");
 const generateError = require("../helpers/generateError");
 const deleteFile = require("../helpers/deleteFile");
 
+exports.getAllToolVideos = async (req, res) => {
+  try {
+    const result = req.result;
+    const toolVideos = await result.populate("tags", "name");
+    return res.status(200).json({
+      status: "success",
+      numOfVideos: toolVideos.length,
+      toolVideos,
+    });
+  } catch (err) {
+    return res.status(400).json({
+      status: "failed",
+      error: err.message,
+    });
+  }
+};
+
 exports.createToolVideo = async (req, res) => {
   try {
     // 1 : Check and get data from body

@@ -24,6 +24,22 @@ exports.checkId = async (req, res, next, val) => {
   }
 };
 
+exports.getAllGroundWorkVideos = async (req, res) => {
+  try {
+    const result = req.result;
+    const gwVideos = await result.populate("tags", "name");
+    return res.status(200).json({
+      status: "success",
+      numOfVideos: gwVideos.length,
+      gwVideos,
+    });
+  } catch (err) {
+    return res.status(400).json({
+      status: "failed",
+      error: err.message,
+    });
+  }
+};
 exports.createGroundWorkVideo = async (req, res) => {
   try {
     // 1 : Check and get data from body

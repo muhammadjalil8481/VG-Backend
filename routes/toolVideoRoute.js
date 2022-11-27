@@ -5,14 +5,21 @@ const checkTeachers = require("../middlewares/checkTeachers");
 const checkToolCategory = require("../middlewares/checkToolCategory");
 const checkToolVideo = require("../middlewares/checkRelatedToolVideos");
 const { queryOperations } = require("../middlewares/queryOperations");
+const ToolVideoModel = require("../models/ToolVideoModel");
 const {
   createToolVideo,
   updateToolVideo,
   deleteToolVideo,
+  getAllToolVideos,
 } = require("../controllers/toolVideoController");
 
 const router = express.Router();
 
+router.get(
+  "/getAllToolVideos",
+  queryOperations(ToolVideoModel),
+  getAllToolVideos
+);
 router.post(
   "/createToolVideo",
   uploadOptions.fields([

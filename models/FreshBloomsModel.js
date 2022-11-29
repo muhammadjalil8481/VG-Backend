@@ -51,6 +51,11 @@ const freshBloomsSchema = new mongoose.Schema(
       type: String,
       // required: true,
     },
+    views: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "Views",
+    },
+
     //   additionalResources: [
     //     {
     //       title: {

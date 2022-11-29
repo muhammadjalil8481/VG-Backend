@@ -11,6 +11,7 @@ const {
   updateGroundWorkVideo,
   deleteGroundWorkVideo,
   getAllGroundWorkVideos,
+  getGroundWorkVideo,
   checkId,
 } = require("../controllers/groundWorkVideoController");
 
@@ -22,6 +23,7 @@ router.get(
   queryOperations(GroundWorkVideoModel),
   getAllGroundWorkVideos
 );
+router.get("/getGroundWorkVideo/:id", getGroundWorkVideo);
 router.post(
   "/createGroundWorkVideo",
   uploadOptions.fields([

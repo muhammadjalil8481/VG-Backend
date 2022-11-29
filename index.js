@@ -22,6 +22,9 @@ const toolsPageRouter = require("./routes/toolsPageRoute");
 const guidesPageRouter = require("./routes/guidesPageRoute");
 const cgPageRouter = require("./routes/communityGardenPageRoute");
 const extrasRoute = require("./routes/extrasRoute");
+const viewsRoute = require("./routes/viewsRoute");
+const toolBloomRoute = require("./routes/ToolBloomRoute");
+const aboutUsVideoRoute = require("./routes/AboutUsVideoRoute");
 const deleteUnverifiedUsers = require("./middlewares/deleteUnverifiedUsers");
 
 // MIDDLEWARES
@@ -86,4 +89,7 @@ app.use(apiRoute, gwPageRouter);
 app.use(apiRoute, toolsPageRouter);
 app.use(apiRoute, guidesPageRouter);
 app.use(apiRoute, cgPageRouter);
+app.use(apiRoute, viewsRoute);
 app.use(apiRoute, extrasRoute);
+app.use(apiRoute, toolBloomRoute);
+app.use(apiRoute, aboutUsVideoRoute);

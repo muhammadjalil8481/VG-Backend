@@ -5,11 +5,77 @@ const deleteFile = require("../helpers/deleteFile");
 exports.getAllToolVideos = async (req, res) => {
   try {
     const result = req.result;
-    const toolVideos = await result.populate("tags", "name");
+    const toolVideos = await result
+      .populate("tags", "name")
+      .populate("category", "title icon");
     return res.status(200).json({
       status: "success",
       numOfVideos: toolVideos.length,
       toolVideos,
+    });
+  } catch (err) {
+    return res.status(400).json({
+      status: "failed",
+      error: err.message,
+    });
+  }
+};
+
+exports.getToolVideo = async (req, res) => {
+  try {
+    const { id } = req.params;
+    const toolVideo = await ToolVideoModel.findById(id)
+      .populate("tags", "name")
+      .populate("teachers", "-tags -video -reels -__v")
+      .populate("relatedContent", "title category thumbnail video tags");
+    if (!toolVideo)
+      return generateError(req, res, 400, "no tool video with this id exist");
+    return res.status(200).json({
+      status: "success",
+      toolVideo,
+    });
+  } catch (err) {
+    return res.status(400).json({
+      status: "failed",
+      error: err.message,
+    });
+  }
+};
+
+exports.getToolVideosByCategory = async (req, res) => {
+  try {
+    // const result = req.result;
+    const { category } = req.query;
+    const toolVideos = await ToolVideoModel.find({ category: category });
+    return res.status(200).json({
+      status: "success",
+      numOfVideos: toolVideos.length,
+      toolVideos,
+    });
+  } catch (err) {
+    return res.status(400).json({
+      status: "failed",
+      error: err.message,
+    });
+  }
+};
+
+exports.getToolVideo = async (req, res) => {
+  try {
+    const toolVideo = await ToolVideoModel.findById(req.params.id).populate(
+      "tags",
+      "name"
+    );
+    if (!toolVideo)
+      return generateError(
+        req,
+        res,
+        400,
+        "Failed to get tool video, please check if id is correct"
+      );
+    return res.status(200).json({
+      status: "success",
+      toolVideo,
     });
   } catch (err) {
     return res.status(400).json({

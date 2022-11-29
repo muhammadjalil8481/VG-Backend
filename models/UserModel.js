@@ -76,6 +76,10 @@ const userSchema = new mongoose.Schema(
       type: Boolean,
       default: false,
     },
+    history: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "UserHistory",
+    },
   },
   { timestamps: true }
 );

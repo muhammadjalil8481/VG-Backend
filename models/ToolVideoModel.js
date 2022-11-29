@@ -5,7 +5,7 @@ const toolVideoSchema = new mongoose.Schema(
     title: {
       type: String,
       required: true,
-      minLength: [5, "Title must be atleast 5 characters"],
+      // minLength: [5, "Title must be atleast 5 characters"],
       unique: true,
     },
     category: {
@@ -59,6 +59,10 @@ const toolVideoSchema = new mongoose.Schema(
         ref: "Teacher",
       },
     ],
+    views: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "Views",
+    },
   },
   { timestamps: true }
 );

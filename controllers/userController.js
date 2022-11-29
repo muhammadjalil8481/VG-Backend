@@ -1,6 +1,9 @@
 const { response } = require("express");
 const User = require("../models/UserModel");
 const generateError = require("../helpers/generateError");
+const UserHistory = require("../models/UserHistory");
+const GroundWorkVideoModel = require("../models/GroundWorkVideoModel");
+const ToolVideoModel = require("../models/ToolVideoModel");
 
 exports.getAllUsers = async (req, res) => {
   try {
@@ -227,6 +230,106 @@ exports.makeUserAdmin = async (req, res) => {
     return res.status(200).json({
       status: "success",
       updatedAdmin,
+    });
+  } catch (err) {
+    return res.status(400).json({
+      status: "failed",
+      error: err.message,
+    });
+  }
+};
+
+exports.addToHistory = async (req, res) => {
+  try {
+    const { user } = req.params;
+    const { video, docModel } = req.body;
+    if (!user || !docModel || !video)
+      return generateError(req, res, 400, "Please provide required info");
+    const userExist = await User.findById(user);
+    if (!userExist)
+      return generateError(req, res, 400, "No user was found with provided id");
+    let isGWVideo = null;
+    let isToolVideo = null;
+    if (docModel === "groundWorkVideo") {
+      isGWVideo = await GroundWorkVideoModel.findById(video);
+      if (!isGWVideo)
+        return generateError(
+          req,
+          res,
+          400,
+          "No Groundwork video was found with provided id"
+        );
+    }
+    if (docModel === "ToolVideo") {
+      isToolVideo = await ToolVideoModel.findById(video);
+      if (!isToolVideo)
+        return generateError(
+          req,
+          res,
+          400,
+          "No tool video was found with provided id "
+        );
+    }
+    const checkHistoryExist = await UserHistory.find({ user: user });
+
+    if (!checkHistoryExist.length) {
+      // console.log("ndwkdm", checkHistoryExist);
+      const createUserHistory = await UserHistory.create({
+        ...req.body,
+        videoHistory: [video],
+      });
+      const updatedUser = await User.findByIdAndUpdate(user, {
+        history: createUserHistory,
+      });
+      return res.status(201).json({
+        status: "success",
+        createUserHistory,
+      });
+    }
+    const getUserHistory = await UserHistory.findOne({ user: user });
+    // console.log("getUserHistory", getUserHistory);
+    if (getUserHistory.videoHistory.includes(video))
+      return generateError(req, res, 400, "This video is already in history");
+
+    const updateUserHistory = await UserHistory.findOneAndUpdate(
+      { user: user },
+      { videoHistory: [...getUserHistory.videoHistory, video] },
+      { new: true, runValidators: true }
+    );
+    return res.status(200).json({
+      status: "success",
+      updateUserHistory,
+    });
+  } catch (err) {
+    return res.status(400).json({
+      status: "failed",
+      error: err.message,
+    });
+  }
+};
+
+exports.getUserHistory = async (req, res) => {
+  try {
+    const user = await User.findById(req.params.id)
+      .select("history")
+      .populate("history");
+    if (!user)
+      return generateError(
+        req,
+        res,
+        400,
+        "Failed to get user history, check if user id is correct"
+      );
+    if (!user.history || user.history.length < 1)
+      return generateError(
+        req,
+        res,
+        400,
+        "Please watch some videos to generate some history"
+      );
+    return res.status(200).json({
+      status: "success",
+      history: user.history,
     });
   } catch (err) {
     return res.status(400).json({

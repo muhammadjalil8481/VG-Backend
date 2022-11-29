@@ -11,7 +11,7 @@ exports.checkId = async (req, res, next, val) => {
         req,
         res,
         400,
-        "No groundwprk category was found with provided id"
+        "No groundwprk video was found with provided id"
       );
     req.groundWorkVideo = groundWorkVideo;
     next();
@@ -27,11 +27,39 @@ exports.checkId = async (req, res, next, val) => {
 exports.getAllGroundWorkVideos = async (req, res) => {
   try {
     const result = req.result;
-    const gwVideos = await result.populate("tags", "name");
+    const gwVideos = await result
+      .populate("tags", "name")
+      .populate("category", "title icon");
     return res.status(200).json({
       status: "success",
       numOfVideos: gwVideos.length,
       gwVideos,
+    });
+  } catch (err) {
+    return res.status(400).json({
+      status: "failed",
+      error: err.message,
+    });
+  }
+};
+
+exports.getGroundWorkVideo = async (req, res) => {
+  try {
+    const { id } = req.params;
+    const gwVideo = await GroundWorkVideoModel.findById(id)
+      .populate("tags", "name")
+      .populate("teachers", "-tags -video -reels -__v")
+      .populate("relatedContent", "title category thumbnail video tags");
+    if (!gwVideo)
+      return generateError(
+        req,
+        res,
+        400,
+        "no groundwork video with this id exist"
+      );
+    return res.status(400).json({
+      status: "success",
+      gwVideo,
     });
   } catch (err) {
     return res.status(400).json({

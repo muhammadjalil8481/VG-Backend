@@ -11,6 +11,8 @@ const {
   updateToolVideo,
   deleteToolVideo,
   getAllToolVideos,
+  getToolVideosByCategory,
+  getToolVideo,
 } = require("../controllers/toolVideoController");
 
 const router = express.Router();
@@ -18,8 +20,11 @@ const router = express.Router();
 router.get(
   "/getAllToolVideos",
   queryOperations(ToolVideoModel),
+  // getToolVideosByCategory
   getAllToolVideos
 );
+
+router.get("/getToolVideo/:id", getToolVideo);
 router.post(
   "/createToolVideo",
   uploadOptions.fields([

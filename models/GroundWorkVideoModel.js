@@ -34,6 +34,7 @@ const groundworkVideoSchema = new mongoose.Schema(
     relatedContent: [
       {
         type: mongoose.Schema.Types.ObjectId,
+        ref: "groundWorkVideo",
       },
     ],
     additionalResources: [
@@ -55,7 +56,10 @@ const groundworkVideoSchema = new mongoose.Schema(
         ref: "Teacher",
       },
     ],
-   
+    views: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "Views",
+    },
   },
   { timestamps: true }
 );

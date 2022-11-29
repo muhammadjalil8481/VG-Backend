@@ -87,7 +87,34 @@ exports.createComment2 = async (req, res) => {
 
 exports.getAllComments = async (req, res) => {
   try {
-    const comments = await Comment.find().populate("postId");
+    const comments = await Comment.find().populate("postId", "title");
+    return res.status(200).json({
+      status: "success",
+      totalComments: comments.length,
+      comments,
+    });
+  } catch (err) {
+    return res.status(400).json({
+      status: "failed",
+      error: err.message,
+    });
+  }
+};
+
+exports.getCommentByVideo = async (req, res) => {
+  try {
+    console.log(req.params.videoId);
+    const comments = await Comment.find({
+      postId: req.params.videoId,
+    }).populate("postId", "title");
+    console.log(comments);
+    if (!comments)
+      return generateError(
+        req,
+        res,
+        400,
+        "failed to get comments, this video probably has no comment"
+      );
     return res.status(200).json({
       status: "success",
       comments,

@@ -13,6 +13,7 @@ const {
   getAllToolVideos,
   getToolVideosByCategory,
   getToolVideo,
+  getTopTools,
 } = require("../controllers/toolVideoController");
 
 const router = express.Router();
@@ -52,5 +53,6 @@ router.patch(
 );
 
 router.delete("/deleteToolVideo/:id", deleteToolVideo);
+router.get("/getTopTools", getTopTools);
 
 module.exports = router;

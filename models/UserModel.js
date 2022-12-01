@@ -53,19 +53,12 @@ const userSchema = new mongoose.Schema(
     },
 
     avatar: {
-      type: String,
-      enum: [
-        "wolf-woman",
-        "bear-man",
-        "jaguar-being",
-        "bird-women",
-        "dolphin-being",
-      ],
-      // required: true,
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "Avatar",
     },
     bloom: {
-      type: String,
-      enum: ["blue-lotus", "divine-ross", "mushrooms", "chuchuhuas"],
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "Bloom",
     },
     bloomPercentage: {
       type: Number,
@@ -79,6 +72,22 @@ const userSchema = new mongoose.Schema(
     history: {
       type: mongoose.Schema.Types.ObjectId,
       ref: "UserHistory",
+    },
+    toolsToTry: [
+      {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: "ToolVideo",
+      },
+    ],
+    favorites: [
+      {
+        type: mongoose.Schema.Types.ObjectId,
+        refPath: "favDocModel",
+      },
+    ],
+    favDocModel: {
+      type: String,
+      enum: ["ToolVideo", "groundWorkVideo"],
     },
   },
   { timestamps: true }

@@ -4,6 +4,9 @@ const generateError = require("../helpers/generateError");
 const UserHistory = require("../models/UserHistory");
 const GroundWorkVideoModel = require("../models/GroundWorkVideoModel");
 const ToolVideoModel = require("../models/ToolVideoModel");
+const AvatarModel = require("../models/AvatarModel");
+const BloomModel = require("../models/BloomModel");
+const mongoose = require("mongoose");
 
 exports.getAllUsers = async (req, res) => {
   try {
@@ -31,6 +34,24 @@ exports.activateEmailSubscription = async (req, res) => {
   }
 };
 
+exports.getUser = async (req, res) => {
+  try {
+    const { id } = req.params;
+    const user = await User.findById(id).populate("paymentMethod");
+    console.log("pass", user.password);
+    if (!user)
+      return generateError(req, res, 400, "No user found with this id");
+    return res.status(200).json({
+      status: "success",
+      user,
+    });
+  } catch (err) {
+    return res.status(400).json({
+      status: "failed",
+      error: err.message,
+    });
+  }
+};
 exports.updateAvatar = async (req, res) => {
   try {
     // 1 : Get avatar from req.body
@@ -38,14 +59,16 @@ exports.updateAvatar = async (req, res) => {
     const { avatar } = req.body;
     if (!avatar)
       return generateError(req, res, 400, "Please provide required data");
-
+    const checkAvatar = await AvatarModel.findById(avatar);
+    if (!checkAvatar)
+      return generateError(req, res, 400, "Please provide correct avatar id");
     // 2 : Update avatar
     const updatedUser = await User.findByIdAndUpdate(
       id,
       { avatar },
       { new: true, runValidators: true }
     );
-    if (!updatedUser)
+    if (!updatedUser || !updatedUser.verified)
       return generateError(
         req,
         res,
@@ -72,7 +95,9 @@ exports.updateBloom = async (req, res) => {
     const { bloom } = req.body;
     if (!bloom)
       return generateError(req, res, 400, "Please provide required data");
-
+    const checkBloom = await BloomModel.findById(bloom);
+    if (!checkBloom)
+      return generateError(req, re, 400, "Please provide correct bloom id");
     // 2 : Update avatar
     const updatedUser = await User.findByIdAndUpdate(
       id,
@@ -330,6 +355,120 @@ exports.getUserHistory = async (req, res) => {
     return res.status(200).json({
       status: "success",
       history: user.history,
+    });
+  } catch (err) {
+    return res.status(400).json({
+      status: "failed",
+      error: err.message,
+    });
+  }
+};
+
+exports.toolsToTry = async (req, res) => {
+  try {
+    const { userId } = req.params;
+    let { tool } = req.body;
+    if (!tool)
+      return generateError(req, res, 400, "Please provide required info");
+    const user = await User.findById(userId);
+    if (!user) return generateError(req, res, 400, "This user does not exist");
+    const toolExist = await ToolVideoModel.findById(tool);
+    if (!toolExist)
+      return generateError(
+        req,
+        res,
+        400,
+        "tool with provided id does not exist"
+      );
+    let { toolsToTry } = user;
+    if (toolsToTry.includes(tool)) {
+      // removing
+      console.log("removing");
+      toolsToTry = toolsToTry.filter((tty) => {
+        const idString = tty.toString();
+        return idString !== tool;
+      });
+    } else {
+      // adding
+      console.log("adding");
+      toolsToTry.push(tool);
+    }
+    const userUpdated = await User.findByIdAndUpdate(
+      userId,
+      { toolsToTry },
+      { new: true }
+    );
+    console.log("toolstotry", toolsToTry);
+    return res.status(200).json({
+      status: "success",
+      userUpdated,
+    });
+  } catch (err) {
+    return res.status(400).json({
+      status: "failed",
+      error: err.message,
+    });
+  }
+};
+
+exports.favorites = async (req, res) => {
+  try {
+    const { userId } = req.params;
+    const { favorite, favDocModel } = req.body;
+    if (!favorite || !favDocModel)
+      return generateError(req, res, 400, "Please provide required info");
+    const user = await User.findById(userId);
+    if (!user) return generateError(req, res, 400, "This user does not exist");
+    let isGWVideo = null;
+    let isToolVideo = null;
+    if (favDocModel === "groundWorkVideo") {
+      isGWVideo = await GroundWorkVideoModel.findById(favorite);
+      if (!isGWVideo)
+        return generateError(
+          req,
+          res,
+          400,
+          "No Groundwork video was found with provided id"
+        );
+    } else if (favDocModel === "ToolVideo") {
+      isToolVideo = await ToolVideoModel.findById(favorite);
+      if (!isToolVideo)
+        return generateError(
+          req,
+          res,
+          400,
+          "No tool video was found with id " + favorite
+        );
+    } else {
+      return generateError(
+        req,
+        res,
+        400,
+        "favDocModel can be ToolVideo or groundWorkVideo"
+      );
+    }
+    let { favorites } = user;
+    if (favorites.includes(favorite)) {
+      // removing
+      console.log("removing");
+      favorites = favorites.filter((fav) => {
+        const idString = fav.toString();
+        return idString !== favorite;
+      });
+    } else {
+      // adding
+      console.log("adding");
+      favorites.push(favorite);
+    }
+    const userUpdated = await User.findByIdAndUpdate(
+      userId,
+      { favorites },
+      { new: true }
+    );
+    console.log("favorites", favorites);
+    return res.status(200).json({
+      status: "success",
+      userUpdated,
     });
   } catch (err) {
     return res.status(400).json({

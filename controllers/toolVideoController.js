@@ -243,3 +243,23 @@ exports.deleteToolVideo = async (req, res) => {
     });
   }
 };
+
+exports.getTopTools = async (req, res) => {
+  try {
+    const tools = await ToolVideoModel.find()
+      .populate({
+        path: "views",
+        select: "user",
+      })
+      .sort("-views.user");
+    return res.status(200).json({
+      status: "success",
+      tools,
+    });
+  } catch (err) {
+    return res.status(400).json({
+      status: "failed",
+      error: err.message,
+    });
+  }
+};

@@ -48,3 +48,27 @@ exports.scheduleSession = async (req, res) => {
     });
   }
 };
+
+exports.getTeacherSessions = async (req, res, next) => {
+  try {
+    const { id } = req.params;
+    const teacherSessions = await Schedule.find({ teacher: id });
+    if (!teacherSessions || teacherSessions.length < 1)
+      return generateError(
+        req,
+        res,
+        400,
+        "No sessions were found  with this teacher"
+      );
+    return res.status(200).json({
+      status: "success",
+      totalSessions: teacherSessions.length,
+      teacherSessions,
+    });
+  } catch (err) {
+    return res.status(400).json({
+      status: "failed",
+      error: err.message,
+    });
+  }
+};

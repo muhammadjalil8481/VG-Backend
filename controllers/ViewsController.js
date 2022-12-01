@@ -26,9 +26,7 @@ exports.addVideoViews = async (req, res) => {
           400,
           "No Groundwork video was found with provided id"
         );
-    }
-
-    if (docModel === "ToolVideo") {
+    } else if (docModel === "ToolVideo") {
       isToolVideo = await ToolVideoModel.findById(video);
       if (!isToolVideo)
         return generateError(
@@ -37,8 +35,7 @@ exports.addVideoViews = async (req, res) => {
           400,
           "No tool video was found with provided id "
         );
-    }
-    if (docModel === "freshBlooms") {
+    } else if (docModel === "freshBlooms") {
       isFBVideo = await FreshBloomsVideoModel.findById(video);
       if (!isFBVideo)
         return generateError(
@@ -47,11 +44,18 @@ exports.addVideoViews = async (req, res) => {
           400,
           "No fresh bloom video was found with provided id "
         );
+    } else {
+      return generateError(
+        req,
+        res,
+        400,
+        "docModel can only be groundWorkVideo or ToolVideo or freshBlooms"
+      );
     }
     const checkView = await ViewsModel.findOne({ video: video });
     console.log("checkView", checkView);
     if (!checkView?.user || checkView?.user.length < 1) {
-      console.log("nwks");
+      // console.log("nwks");
       const addView = await ViewsModel.create({ ...req.body, user: [userId] });
       if (docModel === "groundWorkVideo") {
         await GroundWorkVideoModel.findByIdAndUpdate(video, {
@@ -115,3 +119,5 @@ exports.getVideoViews = async (req, res) => {
     });
   }
 };
+
+

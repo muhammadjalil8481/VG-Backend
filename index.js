@@ -25,6 +25,8 @@ const extrasRoute = require("./routes/extrasRoute");
 const viewsRoute = require("./routes/viewsRoute");
 const toolBloomRoute = require("./routes/ToolBloomRoute");
 const aboutUsVideoRoute = require("./routes/AboutUsVideoRoute");
+const avatarRoute = require("./routes/AvatarRoute");
+const bloomRoute = require("./routes/bloomRoute");
 const deleteUnverifiedUsers = require("./middlewares/deleteUnverifiedUsers");
 
 // MIDDLEWARES
@@ -93,3 +95,5 @@ app.use(apiRoute, viewsRoute);
 app.use(apiRoute, extrasRoute);
 app.use(apiRoute, toolBloomRoute);
 app.use(apiRoute, aboutUsVideoRoute);
+app.use(apiRoute, avatarRoute);
+app.use(apiRoute, bloomRoute);

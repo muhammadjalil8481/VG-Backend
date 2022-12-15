@@ -1,7 +1,7 @@
 const { response } = require("express");
 const User = require("../models/UserModel");
 const generateError = require("../helpers/generateError");
-const UserHistory = require("../models/UserHistory");
+const UserHistory = require("../models/userHistory");
 const GroundWorkVideoModel = require("../models/GroundWorkVideoModel");
 const ToolVideoModel = require("../models/ToolVideoModel");
 const AvatarModel = require("../models/AvatarModel");

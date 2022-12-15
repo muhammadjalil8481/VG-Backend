@@ -19,10 +19,7 @@ const checkTags = async (req, res, next) => {
 
     next();
   } catch (err) {
-    return res.status(400).json({
-      status: "failed",
-      error: err.message,
-    });
+    next(err);
   }
 };
 

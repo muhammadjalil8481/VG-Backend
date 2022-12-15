@@ -1,18 +1,18 @@
 const Schedule = require("../models/ScheduleModel");
-const Teacher = require("../models/TeacherModel");
+const VibeGuide = require("../models/vibeGuides");
 const mongoose = require("mongoose");
 const generateError = require("../helpers/generateError");
 
-exports.scheduleSession = async (req, res) => {
+exports.scheduleSession = async (req, res, next) => {
   try {
     const { id } = req.params;
-    const teacher = await Teacher.findById(id);
-    if (!teacher)
+    const vibeGuide = await VibeGuide.findById(id);
+    if (!vibeGuide)
       return generateError(
         req,
         res,
         400,
-        "Could not find teacher with id: " + id
+        "Could not find vibe guide with id: " + id
       );
     const { time, date, length } = req.body;
 
@@ -35,40 +35,37 @@ exports.scheduleSession = async (req, res) => {
     const session = await Schedule.create({
       ...req.body,
       date: givenDate,
-      teacher: id,
+      vibeGuide: id,
     });
     return res.status(201).json({
       status: "success",
       session,
     });
   } catch (err) {
-    return res.status(400).json({
-      status: "failed",
-      error: err.message,
-    });
+    next(err);
   }
 };
 
 exports.getTeacherSessions = async (req, res, next) => {
   try {
     const { id } = req.params;
-    const teacherSessions = await Schedule.find({ teacher: id });
-    if (!teacherSessions || teacherSessions.length < 1)
+    const vibeGuideSessions = await Schedule.find({ vibeGuide: id }).populate(
+      "vibeGuide",
+      "name"
+    );
+    if (!vibeGuideSessions || vibeGuideSessions.length < 1)
       return generateError(
         req,
         res,
         400,
-        "No sessions were found  with this teacher"
+        "No sessions were found with this teacher"
       );
     return res.status(200).json({
       status: "success",
-      totalSessions: teacherSessions.length,
-      teacherSessions,
+      totalSessions: vibeGuideSessions.length,
+      vibeGuideSessions,
     });
   } catch (err) {
-    return res.status(400).json({
-      status: "failed",
-      error: err.message,
-    });
+    next(err);
   }
 };

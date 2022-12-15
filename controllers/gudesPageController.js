@@ -2,7 +2,7 @@ const GuidesPageModel = require("../models/GuidesPageModel");
 const generateError = require("../helpers/generateError");
 const deleteFile = require("../helpers/deleteFile");
 
-exports.createGuidesPage = async (req, res) => {
+exports.createGuidesPage = async (req, res, next) => {
   try {
     let { headerImage, vibeGuides, teachers } = req.body;
     const basePath = `${req.protocol}://${req.get("host")}/uploads/`;
@@ -32,14 +32,11 @@ exports.createGuidesPage = async (req, res) => {
       guidesPage,
     });
   } catch (err) {
-    return res.status(400).json({
-      status: "failed",
-      error: err.message,
-    });
+    next(err);
   }
 };
 
-exports.updateGuidesPage = async (req, res) => {
+exports.updateGuidesPage = async (req, res, next) => {
   try {
     const guidesPage = await GuidesPageModel.find();
     let { headerImage, vibeGuides, teachers } = req.body;
@@ -135,14 +132,11 @@ exports.updateGuidesPage = async (req, res) => {
       updateGuidesPage,
     });
   } catch (err) {
-    return res.status(400).json({
-      status: "failed",
-      error: err.message,
-    });
+    next(err);
   }
 };
 
-exports.getGuidesPage = async (req, res) => {
+exports.getGuidesPage = async (req, res, next) => {
   try {
     const guidesPage = await GuidesPageModel.find();
     if (!guidesPage)
@@ -152,9 +146,6 @@ exports.getGuidesPage = async (req, res) => {
       guidesPage,
     });
   } catch (err) {
-    return res.status(400).json({
-      status: "failed",
-      error: err.message,
-    });
+    next(err);
   }
 };

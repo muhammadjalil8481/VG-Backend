@@ -1,6 +1,7 @@
 const GroundWorkCategoryModel = require("../models/GroundWorkCategoryModel");
 const generateError = require("../helpers/generateError");
 const deleteFile = require("../helpers/deleteFile");
+const { response } = require("express");
 
 exports.checkId = async (req, res, next, val) => {
   try {
@@ -17,14 +18,11 @@ exports.checkId = async (req, res, next, val) => {
     next();
     // const checkId = await FreshBloom.findById(val);
   } catch (err) {
-    return res.status(400).json({
-      status: "failed",
-      error: err.message,
-    });
+    next(err);
   }
 };
 
-exports.createGroundWorkCategory = async (req, res) => {
+exports.createGroundWorkCategory = async (req, res, next) => {
   try {
     // 1 : Get data from req.body
     const { title, description } = req.body;
@@ -49,14 +47,11 @@ exports.createGroundWorkCategory = async (req, res) => {
       groundWorkCategory,
     });
   } catch (err) {
-    return res.status(400).json({
-      status: "failed",
-      error: err.message,
-    });
+    next(err);
   }
 };
 
-exports.updateGroundWorkCategory = async (req, res) => {
+exports.updateGroundWorkCategory = async (req, res, next) => {
   try {
     const gwCategory = req.groundwork;
     let { icon } = req.body;
@@ -84,14 +79,11 @@ exports.updateGroundWorkCategory = async (req, res) => {
       updatedGWCategory,
     });
   } catch (err) {
-    return res.status(400).json({
-      status: "failed",
-      error: err.message,
-    });
+    next(err);
   }
 };
 
-exports.deleteGroundWorkCategory = async (req, res) => {
+exports.deleteGroundWorkCategory = async (req, res, next) => {
   try {
     const gwCategory = req.groundwork;
     let imgPath = gwCategory.icon.split("/uploads").pop();
@@ -103,9 +95,45 @@ exports.deleteGroundWorkCategory = async (req, res) => {
       message: `${gwCategory.title} category has been deleted successfully`,
     });
   } catch (err) {
-    return res.status(400).json({
-      status: "failed",
-      error: err.message,
+    next(err);
+  }
+};
+
+exports.getAllGroundWorkCategories = async (req, res,next) => {
+  try {
+    const gwCategories = await GroundWorkCategoryModel.find();
+    if (!gwCategories || gwCategories.length < 1)
+      return generateError(
+        req,
+        res,
+        400,
+        "No groundwork categories were found"
+      );
+    return res.status(200).json({
+      status: "success",
+      numOfCategories: gwCategories.length,
+      data: gwCategories,
     });
+  } catch (err) {
+    next(err);
+  }
+};
+
+exports.getGroundWorkCategory = async (req, res,next) => {
+  try {
+    const gwCategory = await GroundWorkCategoryModel.findById(req?.params?.id);
+    if (!gwCategory)
+      return generateError(
+        req,
+        res,
+        400,
+        "No GroundWorkCategory was found with provided id "
+      );
+    return res.status(200).json({
+      status: "success",
+      data: gwCategory,
+    });
+  } catch (err) {
+    next(err);
   }
 };

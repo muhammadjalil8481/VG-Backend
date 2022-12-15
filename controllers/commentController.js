@@ -19,13 +19,10 @@ exports.checkId = async (req, res, next, val) => {
     next();
     // const checkId = await FreshBloom.findById(val);
   } catch (err) {
-    return res.status(400).json({
-      status: "failed",
-      error: err.message,
-    });
+    next(err);
   }
 };
-exports.createComment = async (req, res) => {
+exports.createComment = async (req, res,next) => {
   try {
     const { user, docModel, comment, postId } = req.body;
 
@@ -63,14 +60,11 @@ exports.createComment = async (req, res) => {
       newComment,
     });
   } catch (err) {
-    return res.status(400).json({
-      status: "failed",
-      error: err.message,
-    });
+    next(err);
   }
 };
 
-exports.createComment2 = async (req, res) => {
+exports.createComment2 = async (req, res,next) => {
   try {
     const newComment = await Comment.create({ ...req.body });
     return res.status(201).json({
@@ -78,14 +72,11 @@ exports.createComment2 = async (req, res) => {
       newComment,
     });
   } catch (err) {
-    return res.status(400).json({
-      status: "failed",
-      error: err.message,
-    });
+    next(err);
   }
 };
 
-exports.getAllComments = async (req, res) => {
+exports.getAllComments = async (req, res,next) => {
   try {
     const comments = await Comment.find().populate("postId", "title");
     return res.status(200).json({
@@ -94,14 +85,11 @@ exports.getAllComments = async (req, res) => {
       comments,
     });
   } catch (err) {
-    return res.status(400).json({
-      status: "failed",
-      error: err.message,
-    });
+    next(err);
   }
 };
 
-exports.getCommentByVideo = async (req, res) => {
+exports.getCommentByVideo = async (req, res,next) => {
   try {
     console.log(req.params.videoId);
     const comments = await Comment.find({
@@ -120,14 +108,11 @@ exports.getCommentByVideo = async (req, res) => {
       comments,
     });
   } catch (err) {
-    return res.status(400).json({
-      status: "failed",
-      error: err.message,
-    });
+    next(err);
   }
 };
 
-exports.replyComment = async (req, res) => {
+exports.replyComment = async (req, res,next) => {
   try {
     const checkCommentExist = req.comment;
 
@@ -150,14 +135,11 @@ exports.replyComment = async (req, res) => {
       attachReply,
     });
   } catch (err) {
-    return res.status(400).json({
-      status: "failed",
-      error: err.message,
-    });
+    next(err);
   }
 };
 
-exports.deleteComment = async (req, res) => {
+exports.deleteComment = async (req, res,next) => {
   try {
     const checkCommentExist = req.comment;
     await Comment.findByIdAndDelete(checkCommentExist._id);
@@ -165,5 +147,7 @@ exports.deleteComment = async (req, res) => {
       status: "success",
       message: `Comment has been deleted successfully`,
     });
-  } catch (err) {}
+  } catch (err) {
+    next(err);
+  }
 };

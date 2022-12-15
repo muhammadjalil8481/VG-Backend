@@ -5,7 +5,6 @@ const freshBloomsSchema = new mongoose.Schema(
     title: {
       type: String,
       required: true,
-      // minLength: [5, "Title must be atleast 5 characters"],
       unique: true,
     },
     type: {
@@ -28,6 +27,7 @@ const freshBloomsSchema = new mongoose.Schema(
       type: String,
       required: true,
     },
+
     postingDate: {
       type: Date,
       default: Date.now(),
@@ -55,26 +55,6 @@ const freshBloomsSchema = new mongoose.Schema(
       type: mongoose.Schema.Types.ObjectId,
       ref: "Views",
     },
-
-    //   additionalResources: [
-    //     {
-    //       title: {
-    //         type: String,
-    //       },
-    //       description: {
-    //         type: String,
-    //       },
-    //       link: {
-    //         type: String,
-    //       },
-    //     },
-    //   ],
-    //   teachers: [
-    //     {
-    //       type: mongoose.Schema.Types.ObjectId,
-    //       ref: "Teacher",
-    //     },
-    //   ],
   },
   { timestamps: true }
 );

@@ -5,7 +5,6 @@ const groundworkVideoSchema = new mongoose.Schema(
     title: {
       type: String,
       required: true,
-      // minLength: [5, "Title must be atleast 5 characters"],
       unique: true,
     },
     category: {
@@ -25,6 +24,7 @@ const groundworkVideoSchema = new mongoose.Schema(
       type: String,
       required: true,
     },
+
     tags: [
       {
         type: mongoose.Schema.Types.ObjectId,

@@ -42,10 +42,7 @@ exports.protectRoute = async (req, res, next) => {
     // 5 : Finally pass the middleware
     next();
   } catch (err) {
-    return res.status(400).json({
-      status: "failed",
-      error: err.message,
-    });
+    next(err);
   }
 };
 
@@ -89,9 +86,6 @@ exports.protectRouteWithAdmin = async (req, res, next) => {
     // 5 : Finally pass the middleware
     next();
   } catch (err) {
-    return res.status(400).json({
-      status: "failed",
-      error: err.message,
-    });
+    next(err);
   }
 };

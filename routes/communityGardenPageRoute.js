@@ -1,15 +1,26 @@
 const express = require("express");
+// Middlewares
+const uploadOptions = require("../middlewares/multer");
+const {
+  protectRouteWithAdmin,
+  protectRoute,
+} = require("../middlewares/protectRoute");
+const { limitRate } = require("../helpers/rateLimiter");
+
+// Controllers
 const {
   createCommunityGardenPage,
   updateCommunityGardenPage,
   getCommunityGardenPage,
 } = require("../controllers/communityGardenPageController");
-const uploadOptions = require("../middlewares/multer");
 
 const router = express.Router();
 
+// Routes
 router.post(
   "/createCommunityGardenPage",
+  limitRate,
+  protectRouteWithAdmin,
   uploadOptions.fields([
     { name: "headerImage", maxCount: 1 },
     { name: "comingHomeTogether[video]", maxCount: 1 }, //
@@ -22,6 +33,8 @@ router.post(
 
 router.patch(
   "/updateCommunityGardenPage",
+  limitRate,
+  protectRouteWithAdmin,
   uploadOptions.fields([
     { name: "headerImage", maxCount: 1 },
     { name: "comingHomeTogether[video]", maxCount: 1 }, //
@@ -32,5 +45,5 @@ router.patch(
   updateCommunityGardenPage
 );
 
-router.get("/communityGardenPage", getCommunityGardenPage);
+router.get("/communityGardenPage", limitRate, getCommunityGardenPage);
 module.exports = router;

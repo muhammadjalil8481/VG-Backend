@@ -49,10 +49,7 @@ exports.queryOperations = (model) => {
       req.result = result;
       next();
     } catch (err) {
-      return res.status(400).json({
-        status: "failed",
-        error: err.message,
-      });
+      next(err);
     }
   };
 };

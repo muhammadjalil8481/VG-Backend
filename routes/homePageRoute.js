@@ -1,14 +1,26 @@
 const express = require("express");
+// Middlewares
+const uploadOptions = require("../middlewares/multer");
+const { limitRate } = require("../helpers/rateLimiter");
+
+const {
+  protectRouteWithAdmin,
+  protectRoute,
+} = require("../middlewares/protectRoute");
+// Controllers
 const {
   createHomePage,
   updateHomePage,
   getHomePage,
 } = require("../controllers/homePageController");
-const uploadOptions = require("../middlewares/multer");
 
 const router = express.Router();
+
+// Routes
 router.post(
   "/createHomePage",
+  limitRate,
+  protectRouteWithAdmin,
   uploadOptions.fields([
     { name: "headerImage", maxCount: 1 }, //
     { name: "embodyingYourFullness[video]", maxCount: 1 }, //
@@ -35,6 +47,8 @@ router.post(
 
 router.patch(
   "/updateHomePage",
+  limitRate,
+  protectRouteWithAdmin,
   uploadOptions.fields([
     { name: "headerImage", maxCount: 1 }, //
     { name: "embodyingYourFullness[video]", maxCount: 1 }, //
@@ -59,6 +73,6 @@ router.patch(
   updateHomePage
 );
 
-router.get("/homepage", getHomePage);
+router.get("/homepage", limitRate, getHomePage);
 
 module.exports = router;

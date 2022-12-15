@@ -2,7 +2,7 @@ const generateError = require("../helpers/generateError");
 const AvatarModel = require("../models/AvatarModel");
 const deleteFile = require("../helpers/deleteFile");
 
-exports.createAvatar = async (req, res) => {
+exports.createAvatar = async (req, res,next) => {
   try {
     const { title, description } = req.body;
 
@@ -22,14 +22,11 @@ exports.createAvatar = async (req, res) => {
       avatar,
     });
   } catch (err) {
-    return res.status(400).json({
-      status: "failed",
-      error: err.message,
-    });
+    next(err);
   }
 };
 
-exports.updateAvatar = async (req, res) => {
+exports.updateAvatar = async (req, res,next) => {
   try {
     const { id } = req.params;
     let { image, description } = req.body;
@@ -66,14 +63,11 @@ exports.updateAvatar = async (req, res) => {
       updatedAvatar,
     });
   } catch (err) {
-    return res.status(400).json({
-      status: "failed",
-      error: err.message,
-    });
+    next(err);
   }
 };
 
-exports.deleteAvatar = async (req, res) => {
+exports.deleteAvatar = async (req, res,next) => {
   try {
     const { id } = req.params;
     const avatar = await AvatarModel.findById(id);
@@ -93,14 +87,11 @@ exports.deleteAvatar = async (req, res) => {
       message: `${avatar.title} category has been deleted successfully`,
     });
   } catch (err) {
-    return res.status(400).json({
-      status: "failed",
-      error: err.message,
-    });
+    next(err);
   }
 };
 
-exports.getAvatar = async (req, res) => {
+exports.getAvatar = async (req, res,next) => {
   try {
     const { id } = req.params;
     const avatar = await AvatarModel.findById(id);
@@ -116,14 +107,11 @@ exports.getAvatar = async (req, res) => {
       avatar,
     });
   } catch (err) {
-    return res.status(400).json({
-      status: "failed",
-      error: err.message,
-    });
+    next(err);
   }
 };
 
-exports.getAllAvatars = async (req, res) => {
+exports.getAllAvatars = async (req, res,next) => {
   try {
     const avatars = await AvatarModel.find();
     if (!avatars || avatars.length < 1)
@@ -133,9 +121,6 @@ exports.getAllAvatars = async (req, res) => {
       avatars,
     });
   } catch (err) {
-    return res.status(400).json({
-      status: "failed",
-      error: err.message,
-    });
+    next(err);
   }
 };

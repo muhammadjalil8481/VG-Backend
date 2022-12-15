@@ -2,7 +2,7 @@ const CommunityGardenPageModel = require("../models/communityGardenPageModel");
 const generateError = require("../helpers/generateError");
 const deleteFile = require("../helpers/deleteFile");
 
-exports.createCommunityGardenPage = async (req, res) => {
+exports.createCommunityGardenPage = async (req, res, next) => {
   try {
     let { headerImage, comingHomeTogether, whatNext } = req.body;
     const basePath = `${req.protocol}://${req.get("host")}/uploads/`;
@@ -34,14 +34,11 @@ exports.createCommunityGardenPage = async (req, res) => {
       cgPage,
     });
   } catch (err) {
-    return res.status(400).json({
-      status: "failed",
-      error: err.message,
-    });
+    next(err);
   }
 };
 
-exports.updateCommunityGardenPage = async (req, res) => {
+exports.updateCommunityGardenPage = async (req, res, next) => {
   try {
     const cgPage = await CommunityGardenPageModel.find();
     let { headerImage, comingHomeTogether, whatNext } = req.body;
@@ -134,14 +131,11 @@ exports.updateCommunityGardenPage = async (req, res) => {
       updatedCGPage,
     });
   } catch (err) {
-    return res.status(400).json({
-      status: "failed",
-      error: err.message,
-    });
+    next(err);
   }
 };
 
-exports.getCommunityGardenPage = async (req, res) => {
+exports.getCommunityGardenPage = async (req, res, next) => {
   try {
     const cgPage = await CommunityGardenPageModel.findOne();
     if (!cgPage)
@@ -157,9 +151,6 @@ exports.getCommunityGardenPage = async (req, res) => {
       cgPage,
     });
   } catch (err) {
-    return res.status(400).json({
-      status: "failed",
-      error: err.message,
-    });
+    next(err);
   }
 };

@@ -2,11 +2,7 @@ const mongoose = require("mongoose");
 
 const tagSchema = new mongoose.Schema(
   {
-    //   topic: {
-    //     type: String,
-    //     required: true,
-    //     enum: ["tools", "groundwork", "fresh-bloom"],
-    //   },
+  
     name: {
       type: String,
       required: true,

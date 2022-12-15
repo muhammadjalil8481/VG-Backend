@@ -1,14 +1,15 @@
-const nodemailer = require("nodemailer");
-const crypto = require("crypto");
+// Imports
 const jwt = require("jsonwebtoken");
+const bcrypt = require("bcrypt");
+// Helper Finctions
 const otpGenerator = require("../helpers/generateOTP");
+const { sendMail } = require("../helpers/sendMail");
+const generateError = require("../helpers/generateError");
+// Model
 const User = require("../models/UserModel");
 const PaymentMethod = require("../models/PaymentModel");
-const { sendMail } = require("../helpers/sendMail");
-const bcrypt = require("bcrypt");
-const generateError = require("../helpers/generateError");
 
-exports.registerUser = async (req, res) => {
+exports.registerUser = async (req, res, next) => {
   try {
     // 1 : Check request body for credentials
     const {
@@ -128,22 +129,21 @@ exports.registerUser = async (req, res) => {
       otp: otp,
       password: encryptedPassword,
       isAdmin: false,
+      active: true,
     });
     sendMail(otp, email);
 
+    // Finally return the response
     return res.status(201).json({
       status: "passed",
       user: newUser,
     });
   } catch (err) {
-    return res.status(400).json({
-      status: "failed",
-      error: err.message,
-    });
+    next(err);
   }
 };
 
-exports.verifyUser = async (req, res) => {
+exports.verifyUser = async (req, res, next) => {
   try {
     // 1 : Check if user has provided email and otp in req.body
     // if not , then return an error
@@ -184,19 +184,16 @@ exports.verifyUser = async (req, res) => {
       updatedUser,
     });
   } catch (err) {
-    return res.status(400).json({
-      status: "failed",
-      error: err.message,
-    });
+    next(err);
   }
 };
 
-exports.resendOTP = async (req, res) => {
+exports.resendOTP = async (req, res, next) => {
   try {
-    // Generate an otp and send mail
+    // 1 : Generate an otp and send mail
     const otp = otpGenerator();
     sendMail(otp, req.body.email);
-    // Update the user with new otp
+    // 2 : Update the user with new otp
     const updatedUser = await User.findOneAndUpdate(
       { email: req.body.email },
       {
@@ -204,19 +201,17 @@ exports.resendOTP = async (req, res) => {
       },
       { new: true }
     );
+    //  3 : Finally return the response
     return res.status(200).json({
       status: "passed",
       updatedOTP: updatedUser.otp,
     });
   } catch (err) {
-    return res.status(400).json({
-      status: "failed",
-      error: err.message,
-    });
+    next(err);
   }
 };
 
-exports.updateForgottenPassword = async (req, res) => {
+exports.updateForgottenPassword = async (req, res, next) => {
   try {
     // 1 : Check if user has provided new password and has confirmed it?
     // If not return error
@@ -251,13 +246,10 @@ exports.updateForgottenPassword = async (req, res) => {
       updatedUser,
     });
   } catch (err) {
-    return res.status(400).json({
-      status: "failed",
-      error: err.message,
-    });
+    next(err);
   }
 };
-exports.updateExistingPassword = async (req, res) => {
+exports.updateExistingPassword = async (req, res, next) => {
   try {
     // 1 : Get the required info from body
     const { oldPassword, newPassword, confirmNewPassword, email } = req.body;
@@ -301,14 +293,11 @@ exports.updateExistingPassword = async (req, res) => {
       updatedUser,
     });
   } catch (err) {
-    return res.status(400).json({
-      status: "failed",
-      error: err.message,
-    });
+    next(err);
   }
 };
 
-exports.loginUser = async (req, res) => {
+exports.loginUser = async (req, res, next) => {
   try {
     // 1 : Check if email and password is provided
     const { email, password } = req.body;
@@ -338,6 +327,14 @@ exports.loginUser = async (req, res) => {
         "user with this email does not exist"
       );
     }
+    if (user.active === false) {
+      return generateError(
+        req,
+        res,
+        400,
+        "This user is deactivated. Please activate to login"
+      );
+    }
 
     // 3 : Check if user has completed payment or not
     if (
@@ -363,6 +360,14 @@ exports.loginUser = async (req, res) => {
     if (!token)
       return generateError(req, res, 401, "Failed to create JWT Token");
 
+    res.cookie("name", "value", {
+      expires: new Date(
+        Date.now() + process.env.JWT_COOKIE_EXP * 24 * 60 * 60 * 1000
+      ), //Cookie expiration time
+      httpOnly: true, //Browser cannot modify cookie
+      // Secure: true,  //Only send cookie if https
+    });
+    console.log("cookie sent");
     // 6 : Finally return the user
     return res.status(200).json({
       status: "passed",
@@ -370,14 +375,11 @@ exports.loginUser = async (req, res) => {
       user,
     });
   } catch (err) {
-    return res.status(400).json({
-      status: "failed",
-      error: err.message,
-    });
+    next(err);
   }
 };
 
-exports.acceptPay = async (req, res) => {
+exports.acceptPay = async (req, res, next) => {
   try {
     const { packageType } = req.body;
     const subDate = new Date();
@@ -403,11 +405,36 @@ exports.acceptPay = async (req, res) => {
       attachPay,
     });
   } catch (err) {
-    return res.status(400).json({
-      status: "failed",
-      error: err.message,
-    });
+    next(err);
   }
 };
 
+exports.deActivateUser = async (req, res, next) => {
+  try {
+    const { id } = req.params;
+    const updatedUser = await User.findByIdAndUpdate(id, { active: false });
+    if (!updatedUser)
+      return generateError(req, res, 400, "No user found with provided id");
+    return res.status(200).json({
+      status: "success",
+      message: "This user has been deactivated successfully",
+    });
+  } catch (err) {
+    next(err);
+  }
+};
 
+exports.activateUser = async (req, res, next) => {
+  try {
+    const { id } = req.params;
+    const updatedUser = await User.findByIdAndUpdate(id, { active: true });
+    if (!updatedUser)
+      return generateError(req, res, 400, "No user found with provided id");
+    return res.status(200).json({
+      status: "success",
+      message: "This user has been activated successfully",
+    });
+  } catch (err) {
+    next(err);
+  }
+};

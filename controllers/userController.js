@@ -8,7 +8,7 @@ const AvatarModel = require("../models/AvatarModel");
 const BloomModel = require("../models/BloomModel");
 const mongoose = require("mongoose");
 
-exports.getAllUsers = async (req, res) => {
+exports.getAllUsers = async (req, res, next) => {
   try {
     const users = await User.find();
     return res.status(200).json({
@@ -16,25 +16,19 @@ exports.getAllUsers = async (req, res) => {
       users,
     });
   } catch (err) {
-    return res.status(400).json({
-      status: "failed",
-      error: err.message,
-    });
+    next(err);
   }
 };
 
-exports.activateEmailSubscription = async (req, res) => {
+exports.activateEmailSubscription = async (req, res, next) => {
   try {
     const { email } = req.body;
   } catch (err) {
-    return res.status(400).json({
-      status: "failed",
-      error: err.message,
-    });
+    next(err);
   }
 };
 
-exports.getUser = async (req, res) => {
+exports.getUser = async (req, res, next) => {
   try {
     const { id } = req.params;
     const user = await User.findById(id).populate("paymentMethod");
@@ -46,13 +40,10 @@ exports.getUser = async (req, res) => {
       user,
     });
   } catch (err) {
-    return res.status(400).json({
-      status: "failed",
-      error: err.message,
-    });
+    next(err);
   }
 };
-exports.updateAvatar = async (req, res) => {
+exports.updateAvatar = async (req, res, next) => {
   try {
     // 1 : Get avatar from req.body
     const { id } = req.params;
@@ -81,14 +72,11 @@ exports.updateAvatar = async (req, res) => {
       updatedUser,
     });
   } catch (err) {
-    return res.status(400).json({
-      status: "failed",
-      error: err.message,
-    });
+    next(err);
   }
 };
 
-exports.updateBloom = async (req, res) => {
+exports.updateBloom = async (req, res, next) => {
   try {
     // 1 : Get avatar from req.body
     const { id } = req.params;
@@ -117,14 +105,11 @@ exports.updateBloom = async (req, res) => {
       updatedUser,
     });
   } catch (err) {
-    return res.status(400).json({
-      status: "failed",
-      error: err.message,
-    });
+    next(err);
   }
 };
 
-exports.updateBloomPercentage = async (req, res) => {
+exports.updateBloomPercentage = async (req, res, next) => {
   try {
     const { id } = req.params;
     const { bloomPercentage } = req.body;
@@ -148,14 +133,11 @@ exports.updateBloomPercentage = async (req, res) => {
       updatedUser,
     });
   } catch (err) {
-    return res.status(400).json({
-      status: "failed",
-      error: err.message,
-    });
+    next(err);
   }
 };
 
-exports.updateAboutInfo = async (req, res) => {
+exports.updateAboutInfo = async (req, res, next) => {
   try {
     // 1 : Get about info from req.body
     let { id, firstName, lastName, email, userName } = req.body;
@@ -228,14 +210,11 @@ exports.updateAboutInfo = async (req, res) => {
       updatedUser,
     });
   } catch (err) {
-    return res.status(400).json({
-      status: "failed",
-      error: err.message,
-    });
+    next(err);
   }
 };
 
-exports.makeUserAdmin = async (req, res) => {
+exports.makeUserAdmin = async (req, res, next) => {
   try {
     const { id } = req.params;
     const updatedAdmin = await User.findByIdAndUpdate(
@@ -257,14 +236,11 @@ exports.makeUserAdmin = async (req, res) => {
       updatedAdmin,
     });
   } catch (err) {
-    return res.status(400).json({
-      status: "failed",
-      error: err.message,
-    });
+    next(err);
   }
 };
 
-exports.addToHistory = async (req, res) => {
+exports.addToHistory = async (req, res, next) => {
   try {
     const { user } = req.params;
     const { video, docModel } = req.body;
@@ -326,14 +302,11 @@ exports.addToHistory = async (req, res) => {
       updateUserHistory,
     });
   } catch (err) {
-    return res.status(400).json({
-      status: "failed",
-      error: err.message,
-    });
+    next(err);
   }
 };
 
-exports.getUserHistory = async (req, res) => {
+exports.getUserHistory = async (req, res, next) => {
   try {
     const user = await User.findById(req.params.id)
       .select("history")
@@ -357,14 +330,11 @@ exports.getUserHistory = async (req, res) => {
       history: user.history,
     });
   } catch (err) {
-    return res.status(400).json({
-      status: "failed",
-      error: err.message,
-    });
+    next(err);
   }
 };
 
-exports.toolsToTry = async (req, res) => {
+exports.toolsToTry = async (req, res, next) => {
   try {
     const { userId } = req.params;
     let { tool } = req.body;
@@ -404,14 +374,11 @@ exports.toolsToTry = async (req, res) => {
       userUpdated,
     });
   } catch (err) {
-    return res.status(400).json({
-      status: "failed",
-      error: err.message,
-    });
+    next(err);
   }
 };
 
-exports.favorites = async (req, res) => {
+exports.favorites = async (req, res, next) => {
   try {
     const { userId } = req.params;
     const { favorite, favDocModel } = req.body;
@@ -471,9 +438,6 @@ exports.favorites = async (req, res) => {
       userUpdated,
     });
   } catch (err) {
-    return res.status(400).json({
-      status: "failed",
-      error: err.message,
-    });
+    next(err);
   }
 };

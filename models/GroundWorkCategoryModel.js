@@ -15,8 +15,6 @@ const groundworkCategorySchema = new mongoose.Schema(
     description: {
       type: String,
       required: true,
-      // minLength :
-      // maxLength :
     },
   },
   { timestamps: true }

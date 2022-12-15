@@ -1,4 +1,12 @@
 const express = require("express");
+// Middlewares
+const {
+  protectRouteWithAdmin,
+  protectRoute,
+} = require("../middlewares/protectRoute");
+const { limitRate } = require("../helpers/rateLimiter");
+
+// Controllers
 const {
   checkId,
   createComment,
@@ -9,11 +17,18 @@ const {
 } = require("../controllers/commentController");
 
 const router = express.Router();
+
+// Routes
 router.param("id", checkId);
-router.post("/createComment", createComment);
-router.get("/getAllComments", getAllComments);
-router.get("/getCommentByVideo/:videoId", getCommentByVideo);
-router.patch("/replyComment/:id", replyComment);
-router.delete("/deleteComment/:id", deleteComment);
+router.post("/createComment", limitRate, protectRoute, createComment);
+router.get("/getAllComments", limitRate, protectRoute, getAllComments);
+router.get(
+  "/getCommentByVideo/:videoId",
+  limitRate,
+  protectRoute,
+  getCommentByVideo
+);
+router.patch("/replyComment/:id", limitRate, protectRoute, replyComment);
+router.delete("/deleteComment/:id", limitRate, protectRoute, deleteComment);
 
 module.exports = router;

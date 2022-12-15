@@ -3,7 +3,7 @@ const ToolBloomModel = require("../models/ToolBloomsModel");
 const UserModel = require("../models/UserModel");
 const ToolVideoModel = require("../models/ToolVideoModel");
 
-exports.submitToolBloom = async (req, res) => {
+exports.submitToolBloom = async (req, res, next) => {
   try {
     const { user, toolVideo, rating } = req.body;
     if ((!user || !toolVideo, !rating))
@@ -23,14 +23,11 @@ exports.submitToolBloom = async (req, res) => {
       toolBloom,
     });
   } catch (err) {
-    return res.status(400).json({
-      status: "failed",
-      error: err.message,
-    });
+    next(err);
   }
 };
 
-exports.getToolBloom = async (req, res) => {
+exports.getToolBloom = async (req, res, next) => {
   try {
     const { user, toolVideo } = req.body;
     if (!user || !toolVideo)
@@ -48,14 +45,11 @@ exports.getToolBloom = async (req, res) => {
       toolBloom,
     });
   } catch (err) {
-    return res.status(400).json({
-      status: "failed",
-      error: err.message,
-    });
+    next(err);
   }
 };
 
-exports.updateToolBloom = async (req, res) => {
+exports.updateToolBloom = async (req, res, next) => {
   try {
     const { rating } = req.body;
     if (!rating)
@@ -84,9 +78,6 @@ exports.updateToolBloom = async (req, res) => {
       updatedToolBloom,
     });
   } catch (err) {
-    return res.status(400).json({
-      status: "failed",
-      error: err.message,
-    });
+    next(err);
   }
 };

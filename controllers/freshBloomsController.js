@@ -1,6 +1,7 @@
 const FreshBloom = require("../models/FreshBloomsModel");
 const generateError = require("../helpers/generateError");
 const deleteFile = require("../helpers/deleteFile");
+const path = require("path");
 
 exports.checkId = async (req, res, next, val) => {
   try {
@@ -17,13 +18,10 @@ exports.checkId = async (req, res, next, val) => {
     next();
     // const checkId = await FreshBloom.findById(val);
   } catch (err) {
-    return res.status(400).json({
-      status: "failed",
-      error: err.message,
-    });
+    next(err);
   }
 };
-exports.createFreshBloomVideo = async (req, res) => {
+exports.createFreshBloomVideo = async (req, res,next) => {
   try {
     const {
       title,
@@ -56,14 +54,11 @@ exports.createFreshBloomVideo = async (req, res) => {
       freshBloomVideo,
     });
   } catch (err) {
-    return res.status(400).json({
-      status: "failed",
-      error: err.message,
-    });
+    next(err);
   }
 };
 
-exports.updateFreshBloomsVideo = async (req, res) => {
+exports.updateFreshBloomsVideo = async (req, res,next) => {
   try {
     const freshBloomVideo = req.freshBloom;
 
@@ -81,8 +76,15 @@ exports.updateFreshBloomsVideo = async (req, res) => {
     }
     if (req.files["video"]) {
       let videoPath = freshBloomVideo.video.split("/uploads").pop();
+      let videoPathName = path.parse(videoPath).name;
+      let videoPathExt = path.parse(videoPath).ext;
+
       videoPath = `${__dirname}/../uploads${videoPath}`;
+      let videoPath480 = `${__dirname}/../uploads/${videoPathName}-480p${videoPathExt}`;
+      let videoPath360 = `${__dirname}/../uploads/${videoPathName}-360p${videoPathExt}`;
       deleteFile(videoPath);
+      deleteFile(videoPath480);
+      deleteFile(videoPath360);
       const videofile = req.files["video"][0].filename;
       video = `${basePath}${videofile}`;
     }
@@ -100,23 +102,25 @@ exports.updateFreshBloomsVideo = async (req, res) => {
       updateFreshBloomsVideo,
     });
   } catch (err) {
-    return res.status(400).json({
-      status: "failed",
-      error: err.message,
-    });
+    next(err);
   }
 };
 
-exports.deleteFreshBloomVideo = async (req, res) => {
+exports.deleteFreshBloomVideo = async (req, res,next) => {
   try {
     const freshBloomVideo = req.freshBloom;
     let imgPath = freshBloomVideo.thumbnail.split("/uploads").pop();
     imgPath = `${__dirname}/../uploads${imgPath}`;
-    let videoPath = freshBloomVideo.video.split("/uploads").pop();
-    videoPath = `${__dirname}/../uploads${videoPath}`;
-
     deleteFile(imgPath);
+    let videoPath = freshBloomVideo.video.split("/uploads").pop();
+    let videoPathName = path.parse(videoPath).name;
+    let videoPathExt = path.parse(videoPath).ext;
+    videoPath = `${__dirname}/../uploads${videoPath}`;
+    let videoPath480 = `${__dirname}/../uploads/${videoPathName}-480p${videoPathExt}`;
+    let videoPath360 = `${__dirname}/../uploads/${videoPathName}-360p${videoPathExt}`;
     deleteFile(videoPath);
+    deleteFile(videoPath480);
+    deleteFile(videoPath360);
 
     await FreshBloom.findByIdAndDelete(freshBloomVideo._id);
     return res.status(200).json({
@@ -124,42 +128,12 @@ exports.deleteFreshBloomVideo = async (req, res) => {
       message: `${freshBloomVideo.title} video has been deleted successfully`,
     });
   } catch (err) {
-    return res.status(400).json({
-      status: "failed",
-      error: err.message,
-    });
+    next(err);
   }
 };
 
-exports.getAllFreshBloomsVideo = async (req, res) => {
+exports.getAllFreshBloomsVideo = async (req, res,next) => {
   try {
-    // let query = { ...req.query };
-    // const excludedFields = ["sort", "page", "limit", "fields"];
-    // excludedFields.map((field) => delete query[field]);
-    // query = JSON.stringify(query);
-    // query = query.replace(/\b(gt|gte|lt|lte)\b/g, (match) => `$${match}`);
-    // query = JSON.parse(query);
-    // // console.log(query);
-
-    // let result = FreshBloom.find(query);
-    // if (req.query.sort) {
-    //   const sortBy = req.query?.sort?.split(",").join(" ");
-    //   // console.log("sort", req.query, sortBy);
-    //   result = result.sort(sortBy);
-    // }
-    // if (req.query.fields) {
-    //   const fields = req.query.fields.split(",").join(" ");
-    //   result = result.select(fields);
-    // }
-
-    // if (req.query.page && req.query.limit) {
-    //   const limit = req.query.limit * 1;
-    //   const page = req.query.page * 1;
-    //   const skip = limit * (page - 1);
-    //   const totalDocs = await FreshBloom.countDocuments();
-    //   if (skip >= totalDocs)
-    //     return generateError(req, res, 400, "This page does not exist");
-    //   result = result.skip(skip).limit(limit);
     // }
     const result = req.result;
     // console.log("mlw", result);
@@ -170,14 +144,11 @@ exports.getAllFreshBloomsVideo = async (req, res) => {
       freshBloomVideos,
     });
   } catch (err) {
-    return res.status(400).json({
-      status: "failed",
-      error: err.message,
-    });
+    next(err);
   }
 };
 
-exports.getFreshBloomVideo = async (req, res) => {
+exports.getFreshBloomVideo = async (req, res,next) => {
   try {
     const freshBloomVideo = await FreshBloom.findById(req.params.id).populate(
       "tags",
@@ -195,20 +166,7 @@ exports.getFreshBloomVideo = async (req, res) => {
       freshBloomVideo,
     });
   } catch (err) {
-    return res.status(400).json({
-      status: "failed",
-      error: err.message,
-    });
+    next(err);
   }
 };
 
-// exports.getFreshBloomVideoByType = async (req, res) => {
-//   try {
-//     // const freshBloomVideos = await FreshBloom.find({type : req.params.type})
-//   } catch (err) {
-//     return res.status(400).json({
-//       status: "failed",
-//       error: err.message,
-//     });
-//   }
-// };

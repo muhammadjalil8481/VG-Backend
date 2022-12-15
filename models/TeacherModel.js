@@ -17,6 +17,7 @@ const teacherSchema = new mongoose.Schema(
     video: {
       type: String,
     },
+ 
     description: {
       type: String,
       required: true,

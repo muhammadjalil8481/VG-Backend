@@ -1,4 +1,13 @@
 const express = require("express");
+
+// Middlewares
+const {
+  protectRouteWithAdmin,
+  protectRoute,
+} = require("../middlewares/protectRoute");
+const { limitRate } = require("../helpers/rateLimiter");
+
+// Controllers
 const {
   registerUser,
   loginUser,
@@ -7,16 +16,22 @@ const {
   updateForgottenPassword,
   updateExistingPassword,
   acceptPay,
+  deActivateUser,
+  activateUser,
 } = require("../controllers/authController");
 
 const router = express.Router();
+// router.use(rateLimiter);
 
-router.post("/register", registerUser);
-router.post("/login", loginUser);
-router.post("/verifyUser", verifyUser);
-router.post("/resendOTP", resendOTP);
-router.post("/updateForgottenPassword", updateForgottenPassword);
-router.post("/updateExistingPassword", updateExistingPassword);
-router.post("/acceptPay", acceptPay);
+// Routes
+router.post("/register", limitRate, registerUser);
+router.post("/login", limitRate, loginUser);
+router.post("/verifyUser", limitRate, verifyUser);
+router.post("/resendOTP", limitRate, resendOTP);
+router.post("/updateForgottenPassword", limitRate, updateForgottenPassword);
+router.post("/updateExistingPassword", limitRate, updateExistingPassword);
+router.post("/acceptPay", limitRate, acceptPay);
+router.patch("/deActivateUser/:id", limitRate, deActivateUser);
+router.patch("/activateUser/:id", limitRate, activateUser);
 
 module.exports = router;

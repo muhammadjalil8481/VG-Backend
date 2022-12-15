@@ -2,7 +2,7 @@ const BloomModel = require("../models/BloomModel");
 const deleteFile = require("../helpers/deleteFile");
 const generateError = require("../helpers/generateError");
 
-exports.createBloom = async (req, res) => {
+exports.createBloom = async (req, res,next) => {
   try {
     const { title, description } = req.body;
 
@@ -22,14 +22,11 @@ exports.createBloom = async (req, res) => {
       bloom,
     });
   } catch (err) {
-    return res.status(400).json({
-      status: "failed",
-      error: err.message,
-    });
+    next(err);
   }
 };
 
-exports.updateBloom = async (req, res) => {
+exports.updateBloom = async (req, res,next) => {
   try {
     const { id } = req.params;
     let { image, description } = req.body;
@@ -66,14 +63,11 @@ exports.updateBloom = async (req, res) => {
       updatedbloom,
     });
   } catch (err) {
-    return res.status(400).json({
-      status: "failed",
-      error: err.message,
-    });
+    next(err);
   }
 };
 
-exports.deleteBloom = async (req, res) => {
+exports.deleteBloom = async (req, res,next) => {
   try {
     const { id } = req.params;
     const bloom = await BloomModel.findById(id);
@@ -93,14 +87,11 @@ exports.deleteBloom = async (req, res) => {
       message: `${bloom.title} has been deleted successfully`,
     });
   } catch (err) {
-    return res.status(400).json({
-      status: "failed",
-      error: err.message,
-    });
+    next(err);
   }
 };
 
-exports.getBloom = async (req, res) => {
+exports.getBloom = async (req, res,next) => {
   try {
     const { id } = req.params;
     const bloom = await BloomModel.findById(id);
@@ -116,14 +107,11 @@ exports.getBloom = async (req, res) => {
       bloom,
     });
   } catch (err) {
-    return res.status(400).json({
-      status: "failed",
-      error: err.message,
-    });
+    next(err);
   }
 };
 
-exports.getAllBlooms = async (req, res) => {
+exports.getAllBlooms = async (req, res,next) => {
   try {
     const blooms = await BloomModel.find();
     if (!blooms || blooms.length < 1)
@@ -133,9 +121,6 @@ exports.getAllBlooms = async (req, res) => {
       blooms,
     });
   } catch (err) {
-    return res.status(400).json({
-      status: "failed",
-      error: err.message,
-    });
+    next(err);
   }
 };

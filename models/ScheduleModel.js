@@ -2,10 +2,9 @@ const mongoose = require("mongoose");
 
 const scheduleSchema = new mongoose.Schema(
   {
-    teacher: {
+    vibeGuide: {
       type: mongoose.Schema.Types.ObjectId,
-      ref: "Teacher",
-      //   required: true,
+      ref: "VibeGuide",
     },
     date: {
       type: Date,

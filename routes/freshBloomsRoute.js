@@ -1,8 +1,20 @@
 const express = require("express");
+
+// Middlewares
 const uploadOptions = require("../middlewares/multer");
-const checkTags = require("../middlewares/checkTags");
 const { queryOperations } = require("../middlewares/queryOperations");
+const checkTags = require("../middlewares/checkTags");
+const { compressVideo } = require("../middlewares/videoCompression");
+const { limitRate } = require("../helpers/rateLimiter");
+const {
+  protectRouteWithAdmin,
+  protectRoute,
+} = require("../middlewares/protectRoute");
+
+// Model
 const FreshBloomsModel = require("../models/FreshBloomsModel");
+
+// Controllers
 const {
   createFreshBloomVideo,
   updateFreshBloomsVideo,
@@ -13,9 +25,14 @@ const {
 } = require("../controllers/freshBloomsController");
 
 const router = express.Router();
+
+// Routes
 router.param("id", checkId);
 router.post(
   "/createFreshBloomVideo",
+  limitRate,
+  protectRouteWithAdmin,
+  compressVideo,
   uploadOptions.fields([
     { name: "thumbnail", maxCount: 1 },
     { name: "video", maxCount: 1 },
@@ -26,6 +43,9 @@ router.post(
 
 router.patch(
   "/updateFreshBloomVideo/:id",
+  limitRate,
+  protectRouteWithAdmin,
+  compressVideo,
   uploadOptions.fields([
     { name: "thumbnail", maxCount: 1 },
     { name: "video", maxCount: 1 },
@@ -33,14 +53,25 @@ router.patch(
   checkTags,
   updateFreshBloomsVideo
 );
+router.delete(
+  "/deleteFreshBloomVideo/:id",
+  limitRate,
+  protectRouteWithAdmin,
+  deleteFreshBloomVideo
+);
 
 router.get(
   "/getFreshBloomVideos",
+  limitRate,
+  protectRoute,
   queryOperations(FreshBloomsModel),
   getAllFreshBloomsVideo
 );
-router.get("/getFreshBloomVideo/:id", getFreshBloomVideo);
-
-router.delete("/deleteFreshBloomVideo/:id", deleteFreshBloomVideo);
+router.get(
+  "/getFreshBloomVideo/:id",
+  limitRate,
+  protectRoute,
+  getFreshBloomVideo
+);
 
 module.exports = router;

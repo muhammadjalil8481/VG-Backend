@@ -1,11 +1,26 @@
 const express = require("express");
-const checkTeachers = require("../middlewares/checkTeachers");
+// Middlewares
+const {
+  protectRouteWithAdmin,
+  protectRoute,
+} = require("../middlewares/protectRoute");
+const { limitRate } = require("../helpers/rateLimiter");
+
+// Controllers
 const {
   scheduleSession,
   getTeacherSessions,
 } = require("../controllers/scheduleController");
 
 const router = express.Router();
-router.post("/scheduleSession/:id", scheduleSession);
-router.get("/getTeacherSessions/:id", getTeacherSessions);
+
+// Routes
+router.post("/scheduleSession/:id", limitRate, protectRoute, scheduleSession);
+router.get(
+  "/getVibeGuideSessions/:id",
+  limitRate,
+  protectRoute,
+  getTeacherSessions
+);
+
 module.exports = router;

@@ -1,27 +1,34 @@
 const ToolVideoModel = require("../models/ToolVideoModel");
 const generateError = require("../helpers/generateError");
 const deleteFile = require("../helpers/deleteFile");
+const getVideoDuration = require("../helpers/videoDuration");
+const path = require("path");
 
-exports.getAllToolVideos = async (req, res) => {
+exports.getAllToolVideos = async (req, res, next) => {
   try {
     const result = req.result;
     const toolVideos = await result
       .populate("tags", "name")
       .populate("category", "title icon");
+
+    const data = await Promise.all(
+      toolVideos.map(async (vid) => {
+        const duration = await getVideoDuration(vid.video);
+        return { ...vid._doc, duration };
+      })
+    );
     return res.status(200).json({
       status: "success",
       numOfVideos: toolVideos.length,
-      toolVideos,
+      // toolVideos,
+      data,
     });
   } catch (err) {
-    return res.status(400).json({
-      status: "failed",
-      error: err.message,
-    });
+    next(err);
   }
 };
 
-exports.getToolVideo = async (req, res) => {
+exports.getToolVideo = async (req, res, next) => {
   try {
     const { id } = req.params;
     const toolVideo = await ToolVideoModel.findById(id)
@@ -30,19 +37,18 @@ exports.getToolVideo = async (req, res) => {
       .populate("relatedContent", "title category thumbnail video tags");
     if (!toolVideo)
       return generateError(req, res, 400, "no tool video with this id exist");
+    const duration = await getVideoDuration(toolVideo.video);
     return res.status(200).json({
       status: "success",
-      toolVideo,
+      // toolVideo,
+      data: { ...toolVideo._doc, duration },
     });
   } catch (err) {
-    return res.status(400).json({
-      status: "failed",
-      error: err.message,
-    });
+    next(err);
   }
 };
 
-exports.getToolVideosByCategory = async (req, res) => {
+exports.getToolVideosByCategory = async (req, res, next) => {
   try {
     // const result = req.result;
     const { category } = req.query;
@@ -53,39 +59,11 @@ exports.getToolVideosByCategory = async (req, res) => {
       toolVideos,
     });
   } catch (err) {
-    return res.status(400).json({
-      status: "failed",
-      error: err.message,
-    });
+    next(err);
   }
 };
 
-exports.getToolVideo = async (req, res) => {
-  try {
-    const toolVideo = await ToolVideoModel.findById(req.params.id).populate(
-      "tags",
-      "name"
-    );
-    if (!toolVideo)
-      return generateError(
-        req,
-        res,
-        400,
-        "Failed to get tool video, please check if id is correct"
-      );
-    return res.status(200).json({
-      status: "success",
-      toolVideo,
-    });
-  } catch (err) {
-    return res.status(400).json({
-      status: "failed",
-      error: err.message,
-    });
-  }
-};
-
-exports.createToolVideo = async (req, res) => {
+exports.createToolVideo = async (req, res, next) => {
   try {
     // 1 : Check and get data from body
     const {
@@ -132,14 +110,11 @@ exports.createToolVideo = async (req, res) => {
       toolVideo,
     });
   } catch (err) {
-    return res.status(400).json({
-      status: "failed",
-      error: err.message,
-    });
+    next(err);
   }
 };
 
-exports.updateToolVideo = async (req, res) => {
+exports.updateToolVideo = async (req, res, next) => {
   try {
     let {
       title,
@@ -173,8 +148,15 @@ exports.updateToolVideo = async (req, res) => {
     }
     if (req.files["video"]) {
       let videoPath = toolVideo.video.split("/uploads").pop();
+      let videoPathName = path.parse(videoPath).name;
+      let videoPathExt = path.parse(videoPath).ext;
+
       videoPath = `${__dirname}/../uploads${videoPath}`;
+      let videoPath480 = `${__dirname}/../uploads/${videoPathName}-480p${videoPathExt}`;
+      let videoPath360 = `${__dirname}/../uploads/${videoPathName}-360p${videoPathExt}`;
       deleteFile(videoPath);
+      deleteFile(videoPath480);
+      deleteFile(videoPath360);
       const videofile = req.files["video"][0].filename;
       video = `${basePath}${videofile}`;
     }
@@ -206,14 +188,11 @@ exports.updateToolVideo = async (req, res) => {
       updateToolVideo,
     });
   } catch (err) {
-    return res.status(400).json({
-      status: "failed",
-      error: err.message,
-    });
+    next(err);
   }
 };
 
-exports.deleteToolVideo = async (req, res) => {
+exports.deleteToolVideo = async (req, res, next) => {
   try {
     const { id } = req.params;
     const toolVideo = await ToolVideoModel.findById(id);
@@ -226,10 +205,16 @@ exports.deleteToolVideo = async (req, res) => {
       );
     let imgPath = toolVideo.thumbnail.split("/uploads").pop();
     imgPath = `${__dirname}/../uploads${imgPath}`;
-    let videoPath = toolVideo.video.split("/uploads").pop();
-    videoPath = `${__dirname}/../uploads${videoPath}`;
     deleteFile(imgPath);
+    let videoPath = toolVideo.video.split("/uploads").pop();
+    let videoPathName = path.parse(videoPath).name;
+    let videoPathExt = path.parse(videoPath).ext;
+    videoPath = `${__dirname}/../uploads${videoPath}`;
+    let videoPath480 = `${__dirname}/../uploads/${videoPathName}-480p${videoPathExt}`;
+    let videoPath360 = `${__dirname}/../uploads/${videoPathName}-360p${videoPathExt}`;
     deleteFile(videoPath);
+    deleteFile(videoPath480);
+    deleteFile(videoPath360);
 
     await ToolVideoModel.findByIdAndDelete(id);
     return res.status(200).json({
@@ -237,14 +222,11 @@ exports.deleteToolVideo = async (req, res) => {
       message: `${toolVideo.title} video has been deleted successfully`,
     });
   } catch (err) {
-    return res.status(400).json({
-      status: "failed",
-      error: err.message,
-    });
+    next(err);
   }
 };
 
-exports.getTopTools = async (req, res) => {
+exports.getTopTools = async (req, res, next) => {
   try {
     const tools = await ToolVideoModel.find()
       .populate({
@@ -257,9 +239,6 @@ exports.getTopTools = async (req, res) => {
       tools,
     });
   } catch (err) {
-    return res.status(400).json({
-      status: "failed",
-      error: err.message,
-    });
+    next(err);
   }
 };

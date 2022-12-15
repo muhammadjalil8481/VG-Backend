@@ -2,7 +2,7 @@ const GroundWorkPageModel = require("../models/GroundWorkPageModel");
 const generateError = require("../helpers/generateError");
 const deleteFile = require("../helpers/deleteFile");
 
-exports.createGroundWorkPage = async (req, res) => {
+exports.createGroundWorkPage = async (req, res, next) => {
   try {
     let { headerImage, whyGroundWork } = req.body;
     const basePath = `${req.protocol}://${req.get("host")}/uploads/`;
@@ -33,14 +33,11 @@ exports.createGroundWorkPage = async (req, res) => {
       gwPage,
     });
   } catch (err) {
-    return res.status(400).json({
-      status: "failed",
-      error: err.message,
-    });
+    next(err);
   }
 };
 
-exports.updateGroundWorkPage = async (req, res) => {
+exports.updateGroundWorkPage = async (req, res, next) => {
   try {
     const gwPage = await GroundWorkPageModel.find();
     let { headerImage, whyGroundWork } = req.body;
@@ -100,14 +97,11 @@ exports.updateGroundWorkPage = async (req, res) => {
       updatedGWPage,
     });
   } catch (err) {
-    return res.status(400).json({
-      status: "failed",
-      error: err.message,
-    });
+    next(err);
   }
 };
 
-exports.getGroundWorkPage = async (req, res) => {
+exports.getGroundWorkPage = async (req, res, next) => {
   try {
     const gwPage = await GroundWorkPageModel.find();
     if (!gwPage) return generateError(req, res, 400, "failed to find homepage");
@@ -116,9 +110,6 @@ exports.getGroundWorkPage = async (req, res) => {
       gwPage: gwPage[0],
     });
   } catch (err) {
-    return res.status(400).json({
-      status: "failed",
-      error: err.message,
-    });
+    next(err);
   }
 };

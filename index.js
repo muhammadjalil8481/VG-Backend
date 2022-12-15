@@ -1,9 +1,11 @@
 // REQUIRES
 const express = require("express");
+const cookieParser = require("cookie-parser");
 const dotenv = require("dotenv");
 const cors = require("cors");
 const mongoose = require("mongoose");
 const cron = require("node-cron");
+const helmet = require("helmet");
 // REQUIRE ROUTES
 const authRouter = require("./routes/authRoute");
 const userRouter = require("./routes/userRoutes");
@@ -28,6 +30,9 @@ const aboutUsVideoRoute = require("./routes/AboutUsVideoRoute");
 const avatarRoute = require("./routes/AvatarRoute");
 const bloomRoute = require("./routes/bloomRoute");
 const deleteUnverifiedUsers = require("./middlewares/deleteUnverifiedUsers");
+const vibeGuidesRoute = require("./routes/vibeGuidesRoute");
+const resonanceFinderPageRoute = require("./routes/ResonanceFinderPageRoute");
+const resonanceFinderQuestionRoute = require("./routes/ResonanceFinderQuestionRoute");
 
 // MIDDLEWARES
 const app = express();
@@ -36,15 +41,27 @@ app.use(
   cors({
     origin: "*",
     methods: ["GET", "POST", "DELETE", "UPDATE", "PUT", "PATCH"],
+    credentials: true,
   })
 );
-
+app.use(helmet());
 // Getting data in json format
 app.use(express.urlencoded({ extended: true }));
 app.use(express.json());
+app.use(cookieParser());
+
+// Static Folder : /uploads
 app.use("/uploads", express.static("uploads"));
 // app.use(express.static(__dirname + '/public'));
 // app.use('/uploads', express.static('uploads'));
+
+// process.on("message", (message) => {
+//   console.log("Recieved:", message);
+//   setTimeout(() => {
+//     process.send("Hello from child process");
+//     process.exit();
+//   }, 3000);
+// });
 
 // CONFIG DOTENV
 dotenv.config("./config.env");
@@ -56,7 +73,7 @@ cron.schedule(" 0 */10 * * * *", () => {
 });
 
 // LISTEN TO SERVER
-app.listen(process.env.PORT || 3000, () =>
+const server = app.listen(process.env.PORT || 3000, () =>
   console.log("server has started on port 3000")
 );
 // CONNECT DATABASE
@@ -66,14 +83,6 @@ mongoose
   .catch((err) => console.error("failed to connect database", err));
 
 const apiRoute = process.env.API_ROUTE;
-// app.get(apiRoute, (req, res) =>
-//   res.json({
-//     status: "passed",
-//     message: "please provide a route for your request",
-//   })
-// );
-
-// routes
 
 app.use(apiRoute, authRouter);
 app.use(apiRoute, userRouter);
@@ -97,3 +106,38 @@ app.use(apiRoute, toolBloomRoute);
 app.use(apiRoute, aboutUsVideoRoute);
 app.use(apiRoute, avatarRoute);
 app.use(apiRoute, bloomRoute);
+app.use(apiRoute, vibeGuidesRoute);
+app.use(apiRoute, resonanceFinderPageRoute);
+app.use(apiRoute, resonanceFinderQuestionRoute);
+app.all("*", (req, res) => {
+  return res.status(404).json({
+    status: "failed",
+    message: `Can't find ${req.originalUrl} on this server`,
+  });
+});
+
+const ErrorHandler = (err, req, res, next) => {
+  console.log("inside error handler");
+  const errStatus = err.statusCode || 400;
+  // console.log("duplocate", err.name,err.code);
+  if (err.name === "CastError")
+    return res.status(errStatus).json({
+      status: "failed",
+      message: "Please provide a valid id format",
+      stack: err.stack,
+    });
+  if (err.code === 11000)
+    return res.status(errStatus).json({
+      status: "failed",
+      message: "Document with same name already exists",
+      stack: err.stack,
+    });
+
+  const errMsg = err.message || "Something went wrong";
+  res.status(errStatus).json({
+    status: "failed",
+    message: errMsg,
+    stack: err.stack,
+  });
+};
+app.use(ErrorHandler);

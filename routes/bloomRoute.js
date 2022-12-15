@@ -1,4 +1,13 @@
 const express = require("express");
+// Middlewares
+const uploadOptions = require("../middlewares/multer");
+const { limitRate } = require("../helpers/rateLimiter");
+const {
+  protectRouteWithAdmin,
+  protectRoute,
+} = require("../middlewares/protectRoute");
+
+// Controllers
 const {
   createBloom,
   deleteBloom,
@@ -6,13 +15,31 @@ const {
   getBloom,
   updateBloom,
 } = require("../controllers/bloomController");
-const uploadOptions = require("../middlewares/multer");
 
 const router = express.Router();
-router.post("/createBloom", uploadOptions.single("image"), createBloom);
-router.delete("/deleteBloom/:id", deleteBloom);
-router.patch("/updateBloom/:id", uploadOptions.single("image"), updateBloom);
-router.get("/getAllBlooms", getAllBlooms);
-router.get("/getBloom/:id", getBloom);
+
+// Routes
+router.post(
+  "/createBloom",
+  limitRate,
+  protectRouteWithAdmin,
+  uploadOptions.single("image"),
+  createBloom
+);
+router.delete(
+  "/deleteBloom/:id",
+  limitRate,
+  protectRouteWithAdmin,
+  deleteBloom
+);
+router.patch(
+  "/updateBloom/:id",
+  limitRate,
+  protectRouteWithAdmin,
+  uploadOptions.single("image"),
+  updateBloom
+);
+router.get("/getAllBlooms", limitRate, protectRoute, getAllBlooms);
+router.get("/getBloom/:id", limitRate, protectRoute, getBloom);
 
 module.exports = router;

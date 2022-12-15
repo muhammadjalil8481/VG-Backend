@@ -17,13 +17,10 @@ exports.checkId = async (req, res, next, val) => {
     next();
     // const checkId = await FreshBloom.findById(val);
   } catch (err) {
-    return res.status(400).json({
-      status: "failed",
-      error: err.message,
-    });
+    next(err);
   }
 };
-exports.createTag = async (req, res) => {
+exports.createTag = async (req, res, next) => {
   try {
     // 1 : get data from req.body
     const { name, description } = req.body;
@@ -46,14 +43,11 @@ exports.createTag = async (req, res) => {
       tag,
     });
   } catch (err) {
-    return res.status(400).json({
-      status: "failed",
-      error: err.message,
-    });
+    next(err);
   }
 };
 
-exports.updateTag = async (req, res) => {
+exports.updateTag = async (req, res, next) => {
   try {
     const tag = req.tag;
     let { image } = req.body;
@@ -80,14 +74,11 @@ exports.updateTag = async (req, res) => {
       updatedTag,
     });
   } catch (err) {
-    return res.status(400).json({
-      status: "failed",
-      error: err.message,
-    });
+    next(err);
   }
 };
 
-exports.deleteTag = async (req, res) => {
+exports.deleteTag = async (req, res, next) => {
   try {
     const tag = req.tag;
     const basePath = `${req.protocol}://${req.get("host")}/uploads/`;
@@ -100,9 +91,35 @@ exports.deleteTag = async (req, res) => {
       message: `Tag ${tag.name} has been deleted successfully`,
     });
   } catch (err) {
-    return res.status(400).json({
-      status: "failed",
-      error: err.message,
+    next(err);
+  }
+};
+
+exports.getAllTags = async (req, res, next) => {
+  try {
+    const tags = await Tag.find();
+    if (!tags || tags.length < 1)
+      return generateError(req, res, 400, "No tags were found");
+    return res.status(200).json({
+      status: "success",
+      numOfTags: tags.length,
+      data: tags,
     });
+  } catch (err) {
+    next(err);
+  }
+};
+
+exports.getTag = async (req, res, next) => {
+  try {
+    const tag = await Tag.findById(req?.params?.id);
+    if (!tag)
+      return generateError(req, res, 400, "No Tag was found with provided id ");
+    return res.status(200).json({
+      status: "success",
+      data: tag,
+    });
+  } catch (err) {
+    next(err);
   }
 };

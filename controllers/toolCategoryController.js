@@ -27,14 +27,11 @@ exports.createToolCategory = async (req, res, next) => {
       toolCategory,
     });
   } catch (err) {
-    return res.status(400).json({
-      status: "failed",
-      error: err.message,
-    });
+    next(err);
   }
 };
 
-exports.updatedToolCategory = async (req, res) => {
+exports.updatedToolCategory = async (req, res, next) => {
   try {
     const { id } = req.params;
     let { icon } = req.body;
@@ -70,14 +67,11 @@ exports.updatedToolCategory = async (req, res) => {
       updatedToolCategory,
     });
   } catch (err) {
-    return res.status(400).json({
-      status: "failed",
-      error: err.message,
-    });
+    next(err);
   }
 };
 
-exports.deleteToolCategory = async (req, res) => {
+exports.deleteToolCategory = async (req, res, next) => {
   try {
     const { id } = req.params;
     const toolCategory = await ToolCategoryModel.findById(id);
@@ -97,9 +91,40 @@ exports.deleteToolCategory = async (req, res) => {
       message: `${toolCategory.title} category has been deleted successfully`,
     });
   } catch (err) {
-    return res.status(400).json({
-      status: "failed",
-      error: err.message,
+    next(err);
+  }
+};
+
+exports.getAllToolCategories = async (req, res,next) => {
+  try {
+    const toolCategories = await ToolCategoryModel.find();
+    if (!toolCategories || toolCategories.length < 1)
+      return generateError(req, res, 400, "No tool categories were found");
+    return res.status(200).json({
+      status: "success",
+      numOfCategories: toolCategories.length,
+      data: toolCategories,
     });
+  } catch (err) {
+    next(err);
+  }
+};
+
+exports.getToolCategory = async (req, res,next) => {
+  try {
+    const toolCategory = await ToolCategoryModel.findById(req?.params?.id);
+    if (!toolCategory)
+      return generateError(
+        req,
+        res,
+        400,
+        "No Tool Category was found with provided id "
+      );
+    return res.status(200).json({
+      status: "success",
+      data: toolCategory,
+    });
+  } catch (err) {
+    next(err);
   }
 };

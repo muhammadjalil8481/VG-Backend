@@ -19,17 +19,13 @@ exports.checkId = async (req, res, next, val) => {
     next();
     // const checkId = await FreshBloom.findById(val);
   } catch (err) {
-    return res.status(400).json({
-      status: "failed",
-      error: err.message,
-    });
+    next(err);
   }
 };
-exports.createTeacher = async (req, res) => {
+exports.createTeacher = async (req, res, next) => {
   try {
     // 1 : Get the data from body
-    let { name, profileImage, image, video, description, reels, tags } =
-      req.body;
+    let { name, description, reels, tags } = req.body;
     if (!name || !description || !reels || !tags)
       return generateError(req, res, 400, "Please provide required info");
 
@@ -62,14 +58,11 @@ exports.createTeacher = async (req, res) => {
       teacher,
     });
   } catch (err) {
-    return res.status(400).json({
-      status: "failed",
-      error: err.message,
-    });
+    next(err);
   }
 };
 
-exports.updateTeacher = async (req, res) => {
+exports.updateTeacher = async (req, res, next) => {
   try {
     const teacher = req.teacher;
 
@@ -117,40 +110,36 @@ exports.updateTeacher = async (req, res) => {
       updatedVideo,
     });
   } catch (err) {
-    return res.status(400).json({
-      status: "failed",
-      error: err.message,
-    });
+    next(err);
   }
 };
 
-exports.deleteTeacher = async (req, res) => {
+exports.deleteTeacher = async (req, res, next) => {
   try {
     const teacher = req.teacher;
-    let { image, video } = req.body;
+    let { image, video, profileImage } = req.body;
 
     let imgPath = teacher.image.split("/uploads").pop();
     imgPath = `${__dirname}/../uploads${imgPath}`;
     let videoPath = teacher.video.split("/uploads").pop();
     videoPath = `${__dirname}/../uploads${videoPath}`;
-
-    deleteFile(imgPath);
-    deleteFile(videoPath);
+    let piPath = teacher.profileImage.split("/uploads").pop();
+    piPath = `${__dirname}/../uploads${piPath}`;
 
     await Teacher.findByIdAndDelete(teacher._id);
+    deleteFile(imgPath);
+    deleteFile(videoPath);
+    deleteFile(piPath);
     return res.status(200).json({
       status: "success",
       message: "Teacher deleted successfully",
     });
   } catch (err) {
-    return res.status(400).json({
-      status: "failed",
-      error: err.message,
-    });
+    next(err);
   }
 };
 
-exports.getAllTeachers = async (req, res) => {
+exports.getAllTeachers = async (req, res, next) => {
   try {
     let teachers = await req.result;
     if (!teachers)
@@ -181,14 +170,11 @@ exports.getAllTeachers = async (req, res) => {
       allTeachers,
     });
   } catch (err) {
-    return res.status(400).json({
-      status: "failed",
-      error: err.message,
-    });
+    next(err);
   }
 };
 
-exports.getATeacher = async (req, res) => {
+exports.getATeacher = async (req, res, next) => {
   try {
     const teacher = await Teacher.findById(req.params.id);
     if (!teacher)
@@ -210,9 +196,6 @@ exports.getATeacher = async (req, res) => {
       teacherData,
     });
   } catch (err) {
-    return res.status(400).json({
-      status: "failed",
-      error: err.message,
-    });
+    next(err);
   }
 };

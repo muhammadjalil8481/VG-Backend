@@ -1,9 +1,8 @@
 const ToolsPageModel = require("../models/ToolsPageModel");
 const generateError = require("../helpers/generateError");
 const deleteFile = require("../helpers/deleteFile");
-const { request } = require("express");
 
-exports.createToolsPage = async (req, res) => {
+exports.createToolsPage = async (req, res,next) => {
   try {
     let { headerImage, whatTools } = req.body;
     const basePath = `${req.protocol}://${req.get("host")}/uploads/`;
@@ -25,14 +24,11 @@ exports.createToolsPage = async (req, res) => {
       checkToolsPage,
     });
   } catch (err) {
-    return res.status(400).json({
-      status: "failed",
-      error: err.message,
-    });
+    next(err);
   }
 };
 
-exports.updateToolsPage = async (req, res) => {
+exports.updateToolsPage = async (req, res,next) => {
   try {
     const toolPage = await ToolsPageModel.find();
     let { headerImage, whatTools } = req.body;
@@ -92,14 +88,11 @@ exports.updateToolsPage = async (req, res) => {
       updatedToolsPage,
     });
   } catch (err) {
-    return res.status(400).json({
-      status: "failed",
-      error: err.message,
-    });
+    next(err);
   }
 };
 
-exports.getToolsPage = async (req, res) => {
+exports.getToolsPage = async (req, res,next) => {
   try {
     const toolsPage = await ToolsPageModel.find();
     if (!toolsPage)
@@ -109,9 +102,6 @@ exports.getToolsPage = async (req, res) => {
       toolsPage: toolsPage[0],
     });
   } catch (err) {
-    return res.status(400).json({
-      status: "failed",
-      error: err.message,
-    });
+    next(err);
   }
 };

@@ -5,7 +5,7 @@ const FreshBloomsVideoModel = require("../models/FreshBloomsModel");
 const User = require("../models/UserModel");
 const ViewsModel = require("../models/ViewsModel");
 
-exports.addVideoViews = async (req, res) => {
+exports.addVideoViews = async (req, res, next) => {
   try {
     const { docModel, video, userId } = req.body;
     if (!docModel || !video || !userId)
@@ -92,14 +92,11 @@ exports.addVideoViews = async (req, res) => {
       updateView,
     });
   } catch (err) {
-    return res.status(400).json({
-      status: "failed",
-      error: err.message,
-    });
+    next(err);
   }
 };
 
-exports.getVideoViews = async (req, res) => {
+exports.getVideoViews = async (req, res, next) => {
   try {
     const { videoId } = req.params;
     const videoViews = await ViewsModel.findOne({ video: videoId }).select(
@@ -113,11 +110,6 @@ exports.getVideoViews = async (req, res) => {
       videoViews,
     });
   } catch (err) {
-    return res.status(400).json({
-      status: "failed",
-      error: err.message,
-    });
+    next(err);
   }
 };
-
-

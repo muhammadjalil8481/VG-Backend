@@ -1,15 +1,26 @@
 const express = require("express");
+// Middlewares
+const uploadOptions = require("../middlewares/multer");
+const { limitRate } = require("../helpers/rateLimiter");
+
+const {
+  protectRouteWithAdmin,
+  protectRoute,
+} = require("../middlewares/protectRoute");
+// Controllers
 const {
   createGuidesPage,
   updateGuidesPage,
   getGuidesPage,
 } = require("../controllers/gudesPageController");
-const uploadOptions = require("../middlewares/multer");
 
 const router = express.Router();
 
+// Routes
 router.post(
   "/createGuidesPage",
+  limitRate,
+  protectRouteWithAdmin,
   uploadOptions.fields([
     { name: "headerImage", maxCount: 1 },
     { name: "vibeGuides[video]", maxCount: 1 }, //
@@ -22,6 +33,8 @@ router.post(
 
 router.patch(
   "/updateGuidesPage",
+  limitRate,
+  protectRouteWithAdmin,
   uploadOptions.fields([
     { name: "headerImage", maxCount: 1 },
     { name: "vibeGuides[video]", maxCount: 1 }, //
@@ -32,5 +45,5 @@ router.patch(
   updateGuidesPage
 );
 
-router.get("/guidesPage", getGuidesPage);
+router.get("/guidesPage", limitRate, getGuidesPage);
 module.exports = router;

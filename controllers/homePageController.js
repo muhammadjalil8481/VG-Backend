@@ -2,7 +2,7 @@ const HomePage = require("../models/HomePageModel");
 const generateError = require("../helpers/generateError");
 const deleteFile = require("../helpers/deleteFile");
 
-exports.createHomePage = async (req, res) => {
+exports.createHomePage = async (req, res, next) => {
   try {
     const {
       embodyingYourFullness,
@@ -119,14 +119,11 @@ exports.createHomePage = async (req, res) => {
     });
     //   /******************* */
   } catch (err) {
-    return res.status(400).json({
-      status: "failed",
-      error: err.message,
-    });
+    next(err);
   }
 };
 
-exports.updateHomePage = async (req, res) => {
+exports.updateHomePage = async (req, res, next) => {
   try {
     const homePage = await HomePage.find();
     let {
@@ -456,14 +453,11 @@ exports.updateHomePage = async (req, res) => {
     });
     // \&sjoqskqo
   } catch (err) {
-    return res.status(400).json({
-      status: "failed",
-      error: err.message,
-    });
+    next(err);
   }
 };
 
-exports.getHomePage = async (req, res) => {
+exports.getHomePage = async (req, res, next) => {
   try {
     const homePage = await HomePage.find();
     if (!homePage)
@@ -473,9 +467,6 @@ exports.getHomePage = async (req, res) => {
       homepage: homePage[0],
     });
   } catch (err) {
-    return res.status(400).json({
-      status: "failed",
-      error: err.message,
-    });
+    next(err);
   }
 };

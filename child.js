@@ -18,7 +18,7 @@ const compress480 = (filepath, videoName) => {
       console.log("An error occurred: " + err.message);
     })
     .on("progress", function (progress) {
-      // console.log("... frames 480: " + progress.frames);
+      console.log("... frames 480: " + progress.frames);
     });
 };
 
@@ -32,7 +32,7 @@ const compress360 = (filepath, videoName) => {
       console.log("An error occurred: " + err.message);
     })
     .on("progress", function (progress) {
-      // console.log("... frames 360: " + progress.frames);
+      console.log("... frames 360: " + progress.frames);
     });
 };
 

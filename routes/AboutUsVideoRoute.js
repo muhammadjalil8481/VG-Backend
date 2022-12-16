@@ -31,7 +31,12 @@ router.get(
   getAllAboutUsVideos
 );
 
-router.get("/getAboutUsVideo/:id", limitRate, protectRoute, getAboutUsVideo);
+router.get(
+  "/getAboutUsVideo/:id",
+  limitRate,
+  // protectRoute,
+  getAboutUsVideo
+);
 
 router.patch(
   "/updateAboutUsVideo/:id",
@@ -55,7 +60,7 @@ router.delete(
 router.post(
   "/createAboutUsVideo",
   limitRate,
-  protectRouteWithAdmin,
+  // protectRouteWithAdmin,
   uploadOptions.fields([
     { name: "thumbnail", maxCount: 1 },
     { name: "video", maxCount: 1 },

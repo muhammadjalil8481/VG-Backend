@@ -22,7 +22,7 @@ router.param("id", checkId);
 router.post(
   "/createGroundWorkCategory",
   limitRate,
-  protectRouteWithAdmin,
+  // protectRouteWithAdmin,
   // uploadOptions.single("icon"),
   uploadOptions.single("icon"),
   createGroundWorkCategory
@@ -31,7 +31,7 @@ router.post(
 router.patch(
   "/updateGroundWorkCategory/:id",
   limitRate,
-  protectRouteWithAdmin,
+  // protectRouteWithAdmin,
   uploadOptions.single("icon"),
   updateGroundWorkCategory
 );
@@ -39,21 +39,21 @@ router.patch(
 router.delete(
   "/deleteGroundWorkCategory/:id",
   limitRate,
-  protectRouteWithAdmin,
+  // protectRouteWithAdmin,
   deleteGroundWorkCategory
 );
 
 router.get(
   "/getAllGroundWorkCategories",
   limitRate,
-  protectRoute,
+  // protectRoute,
   getAllGroundWorkCategories
 );
 
 router.get(
   "/getGroundWorkCategory/:id",
   limitRate,
-  protectRoute,
+  // protectRoute,
   getGroundWorkCategory
 );
 

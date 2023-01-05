@@ -6,6 +6,8 @@ const cors = require("cors");
 const mongoose = require("mongoose");
 const cron = require("node-cron");
 const helmet = require("helmet");
+// Middlewares
+const { cloudinaryConfig } = require("./middlewares/cloudinary");
 // REQUIRE ROUTES
 const authRouter = require("./routes/authRoute");
 const userRouter = require("./routes/userRoutes");
@@ -81,6 +83,8 @@ mongoose
   .connect(process.env.DB)
   .then(() => console.log("Database has started"))
   .catch((err) => console.error("failed to connect database", err));
+
+app.use("*", cloudinaryConfig);
 
 const apiRoute = process.env.API_ROUTE;
 

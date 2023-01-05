@@ -1,14 +1,15 @@
 const GroundWorkPageModel = require("../models/GroundWorkPageModel");
 const generateError = require("../helpers/generateError");
 const deleteFile = require("../helpers/deleteFile");
+const path = require("path");
+const deleteFromCloduinary = require("../helpers/deleteFromCloudinary");
 
 exports.createGroundWorkPage = async (req, res, next) => {
   try {
     let { headerImage, whyGroundWork } = req.body;
-    const basePath = `${req.protocol}://${req.get("host")}/uploads/`;
-    headerImage = req.files["headerImage"][0].filename;
-    const whyGroundWorkVideo = req.files["whyGroundWork[video]"][0].filename;
-    const whyGroundWorkImage = req.files["whyGroundWork[image]"][0].filename;
+    headerImage = req.files["headerImage"][0].path;
+    const whyGroundWorkVideo = req.files["whyGroundWork[video]"][0].path;
+    const whyGroundWorkImage = req.files["whyGroundWork[image]"][0].path;
 
     const checkGWPage = await GroundWorkPageModel.find();
     if (checkGWPage?.length >= 1)
@@ -24,8 +25,8 @@ exports.createGroundWorkPage = async (req, res, next) => {
       headerImage,
       whyGroundWork: {
         text: whyGroundWork.text,
-        image: `${basePath}${whyGroundWorkImage}`,
-        video: `${basePath}${whyGroundWorkVideo}`,
+        image: whyGroundWorkImage,
+        video: whyGroundWorkVideo,
       },
     });
     return res.status(201).json({
@@ -40,43 +41,42 @@ exports.createGroundWorkPage = async (req, res, next) => {
 exports.updateGroundWorkPage = async (req, res, next) => {
   try {
     const gwPage = await GroundWorkPageModel.find();
-    let { headerImage, whyGroundWork } = req.body;
-    const basePath = `${req.protocol}://${req.get("host")}/uploads/`;
+    let { headerImage, whyGroundWork } = gwPage[0];
 
     // Header Image
     if (req.files["headerImage"]) {
-      let path = gwPage[0].headerImage.split("/uploads").pop();
-      path = `${__dirname}/../uploads${path}`;
-      deleteFile(path);
-      const headerImageFile = req.files["headerImage"][0].filename;
-      headerImage = `${basePath}${headerImageFile}`;
+      headerImage = `uploads/${
+        path.parse(headerImage.split("uploads/")[1]).name
+      }`;
+      deleteFromCloduinary(headerImage);
+      headerImage = req.files["headerImage"][0]?.path;
     }
 
     // Why GroundWork
+    // let whyGroundWorkVideo = null;
     let whyGroundWorkVideo = null;
     if (req.files["whyGroundWork[video]"]) {
-      let path = gwPage[0].whyGroundWork?.video?.split("/uploads").pop();
-      path = `${__dirname}/../uploads${path}`;
-      deleteFile(path);
-      whyGroundWorkVideo = req.files["whyGroundWork[video]"][0].filename;
-      whyGroundWorkVideo = `${basePath}${whyGroundWorkVideo}`;
+      whyGroundWorkVideo = `uploads/${
+        path.parse(whyGroundWork?.video?.split("uploads/")[1]).name
+      }`;
+      deleteFromCloduinary(whyGroundWorkVideo, "video");
+      whyGroundWorkVideo = req.files["whyGroundWork[video]"][0]?.path;
     } else {
       whyGroundWorkVideo = gwPage[0].whyGroundWork.video;
     }
     let whyGroundWorkThumbnail = null;
     if (req.files["whyGroundWork[image]"]) {
-      let path = gwPage[0].whyGroundWork?.image?.split("/uploads").pop();
-      console.log("mekdmk", path);
-      path = `${__dirname}/../uploads${path}`;
-      deleteFile(path);
-      whyGroundWorkThumbnail = req.files["whyGroundWork[image]"][0].filename;
-      console.log("smwos", whyGroundWorkThumbnail);
-      whyGroundWorkThumbnail = `${basePath}${whyGroundWorkThumbnail}`;
+      // console.log("embody image", whyGroundWork);
+      whyGroundWorkThumbnail = `uploads/${
+        path.parse(whyGroundWork?.image?.split("uploads/")[1]).name
+      }`;
+      deleteFromCloduinary(whyGroundWorkThumbnail);
+      whyGroundWorkThumbnail = req.files["whyGroundWork[image]"][0]?.path;
     } else {
       whyGroundWorkThumbnail = gwPage[0].whyGroundWork.image;
     }
-    let whyGroundWorkText = whyGroundWork?.text
-      ? whyGroundWork.text
+    let whyGroundWorkText = req?.body?.whyGroundWork?.text
+      ? req?.body?.whyGroundWork.text
       : gwPage[0].whyGroundWork.text;
 
     const updatedGWPage = await GroundWorkPageModel.findByIdAndUpdate(

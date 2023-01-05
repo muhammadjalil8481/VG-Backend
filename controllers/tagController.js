@@ -1,6 +1,8 @@
 const Tag = require("../models/TagModel");
 const generateError = require("../helpers/generateError");
 const deleteFile = require("../helpers/deleteFile");
+const deleteFromCloduinary = require("../helpers/deleteFromCloudinary");
+const path = require("path");
 
 exports.checkId = async (req, res, next, val) => {
   try {
@@ -28,13 +30,12 @@ exports.createTag = async (req, res, next) => {
       return generateError(req, res, 400, "Please provide required info");
 
     // 2 : Get filename of icon and basepath
-    const { filename } = req.file;
-    const basePath = `${req.protocol}://${req.get("host")}/uploads/`;
+    const filename = req.file;
 
     // 3 : Create a new tag
     const tag = await Tag.create({
       ...req.body,
-      image: `${basePath}${filename}`,
+      image: filename?.path,
     });
 
     // 4 : Finally return the response
@@ -50,15 +51,12 @@ exports.createTag = async (req, res, next) => {
 exports.updateTag = async (req, res, next) => {
   try {
     const tag = req.tag;
-    let { image } = req.body;
+    let { image } = tag;
     if (!image) image = tag.image;
-    const basePath = `${req.protocol}://${req.get("host")}/uploads/`;
     if (req.file) {
-      let imgPath = tag.image.split("/uploads").pop();
-      imgPath = `${__dirname}/../uploads${imgPath}`;
-      deleteFile(imgPath);
-      const imageFile = req.file.filename;
-      image = `${basePath}${imageFile}`;
+      image = `uploads/${path.parse(image.split("uploads/")[1]).name}`;
+      deleteFromCloduinary(image);
+      image = req.file?.path;
     }
 
     const updatedTag = await Tag.findByIdAndUpdate(
@@ -81,10 +79,9 @@ exports.updateTag = async (req, res, next) => {
 exports.deleteTag = async (req, res, next) => {
   try {
     const tag = req.tag;
-    const basePath = `${req.protocol}://${req.get("host")}/uploads/`;
-    let imgPath = tag.image.split("/uploads").pop();
-    imgPath = `${__dirname}/../uploads${imgPath}`;
-    deleteFile(imgPath);
+    let { image } = tag;
+    image = `uploads/${path.parse(image.split("uploads/")[1]).name}`;
+    deleteFromCloduinary(image);
     await Tag.findByIdAndDelete(tag._id);
     return res.status(200).json({
       status: "success",

@@ -1,6 +1,8 @@
 const generateError = require("../helpers/generateError");
 const VibeGuide = require("../models/vibeGuides");
 const deleteFile = require("../helpers/deleteFile");
+const path = require("path");
+const deleteFromCloduinary = require("../helpers/deleteFromCloudinary");
 
 exports.checkId = async (req, res, next, val) => {
   try {
@@ -37,9 +39,6 @@ exports.createVibeGuide = async (req, res, next) => {
     } = req.body;
     if (
       !name ||
-      //   !profileImage ||
-      //   !image ||
-      //   !video ||
       !fee ||
       !thirtyMinuteSessionFee ||
       !sixtyMinuteSessionFee ||
@@ -49,19 +48,15 @@ exports.createVibeGuide = async (req, res, next) => {
     )
       return generateError(req, res, 400, "Please provide required info");
 
-    const basePath = `${req.protocol}://${req.get("host")}/uploads/`;
-    const imagefile = req.files["image"][0].filename;
-    const videofile = req.files["video"][0].filename;
-    const pifile = req.files["profileImage"][0].filename;
-    image = `${basePath}${videofile}`;
-    video = `${basePath}${imagefile}`;
-    profileImage = `${basePath}${pifile}`;
+    const imagefile = req.files["image"][0].path;
+    const videofile = req.files["video"][0].path;
+    const pifile = req.files["profileImage"][0].path;
 
     const vibeGuide = await VibeGuide.create({
       ...req.body,
-      image,
-      video,
-      profileImage,
+      image: imagefile,
+      video: videofile,
+      profileImage: pifile,
     });
 
     return res.status(201).json({
@@ -77,33 +72,27 @@ exports.updateVibeGuide = async (req, res, next) => {
   try {
     const vibeGuide = req.vibeGuide;
 
-    let { image, video, profileImage } = req.body;
+    let { image, video, profileImage } = vibeGuide;
     if (!image) image = vibeGuide.image;
     if (!video) video = vibeGuide.video;
     if (!profileImage) profileImage = vibeGuide.profileImage;
 
-    const basePath = `${req.protocol}://${req.get("host")}/uploads/`;
-
     if (req.files["image"]) {
-      let imgPath = vibeGuide.image.split("/uploads").pop();
-      imgPath = `${__dirname}/../uploads${imgPath}`;
-      deleteFile(imgPath);
-      const imgFile = req.files["image"][0].filename;
-      image = `${basePath}${imgFile}`;
+      image = `uploads/${path.parse(image.split("uploads/")[1]).name}`;
+      deleteFromCloduinary(image);
+      image = req.files["image"][0]?.path;
     }
     if (req.files["video"]) {
-      let videoPath = vibeGuide.video.split("/uploads").pop();
-      videoPath = `${__dirname}/../uploads${videoPath}`;
-      deleteFile(videoPath);
-      const videofile = req.files["video"][0].filename;
-      video = `${basePath}${videofile}`;
+      video = `uploads/${path.parse(video.split("uploads/")[1]).name}`;
+      deleteFromCloduinary(video, "video");
+      video = req.files["video"][0]?.path;
     }
     if (req.files["profileImage"]) {
-      let piPath = vibeGuide.profileImage.split("/uploads").pop();
-      piPath = `${__dirname}/../uploads${piPath}`;
-      deleteFile(piPath);
-      const pifile = req.files["profileImage"][0].filename;
-      profileImage = `${basePath}${pifile}`;
+      profileImage = `uploads/${
+        path.parse(profileImage.split("uploads/")[1]).name
+      }`;
+      deleteFromCloduinary(profileImage);
+      profileImage = req.files["profileImage"][0]?.path;
     }
 
     const updatedVibeGuide = await VibeGuide.findByIdAndUpdate(
@@ -129,19 +118,17 @@ exports.updateVibeGuide = async (req, res, next) => {
 exports.deleteVibeGuide = async (req, res, next) => {
   try {
     const vibeGuide = req.vibeGuide;
-    let { image, video, profileImage } = req.body;
+    let { image, video, profileImage } = vibeGuide;
 
-    let imgPath = vibeGuide.image.split("/uploads").pop();
-    imgPath = `${__dirname}/../uploads${imgPath}`;
-    let videoPath = vibeGuide.video.split("/uploads").pop();
-    videoPath = `${__dirname}/../uploads${videoPath}`;
-    let piPath = vibeGuide.profileImage.split("/uploads").pop();
-    piPath = `${__dirname}/../uploads${piPath}`;
-
+    image = `uploads/${path.parse(image.split("uploads/")[1]).name}`;
+    deleteFromCloduinary(image);
+    video = `uploads/${path.parse(video.split("uploads/")[1]).name}`;
+    deleteFromCloduinary(video, "video");
+    profileImage = `uploads/${
+      path.parse(profileImage.split("uploads/")[1]).name
+    }`;
+    deleteFromCloduinary(profileImage);
     await VibeGuide.findByIdAndDelete(vibeGuide._id);
-    deleteFile(imgPath);
-    deleteFile(videoPath);
-    deleteFile(piPath);
     return res.status(200).json({
       status: "success",
       message: "vibeGuide deleted successfully",

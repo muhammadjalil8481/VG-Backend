@@ -5,7 +5,7 @@ const {
   protectRouteWithAdmin,
   protectRoute,
 } = require("../middlewares/protectRoute");
-const { limitRate } = require("../helpers/rateLimiter");
+const { limitRate, limitOTPRate } = require("../helpers/rateLimiter");
 
 // Controllers
 const {
@@ -27,7 +27,7 @@ const router = express.Router();
 router.post("/register", limitRate, registerUser);
 router.post("/login", limitRate, loginUser);
 router.post("/verifyUser", limitRate, verifyUser);
-router.post("/resendOTP", limitRate, resendOTP);
+router.post("/resendOTP", limitOTPRate, resendOTP);
 router.post("/updateForgottenPassword", limitRate, updateForgottenPassword);
 router.post("/updateExistingPassword", limitRate, updateExistingPassword);
 router.post("/acceptPay", limitRate, acceptPay);

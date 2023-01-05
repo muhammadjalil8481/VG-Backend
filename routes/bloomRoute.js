@@ -22,24 +22,34 @@ const router = express.Router();
 router.post(
   "/createBloom",
   limitRate,
-  protectRouteWithAdmin,
+  // protectRouteWithAdmin,
   uploadOptions.single("image"),
   createBloom
 );
 router.delete(
   "/deleteBloom/:id",
   limitRate,
-  protectRouteWithAdmin,
+  // protectRouteWithAdmin,
   deleteBloom
 );
 router.patch(
   "/updateBloom/:id",
   limitRate,
-  protectRouteWithAdmin,
+  // protectRouteWithAdmin,
   uploadOptions.single("image"),
   updateBloom
 );
-router.get("/getAllBlooms", limitRate, protectRoute, getAllBlooms);
-router.get("/getBloom/:id", limitRate, protectRoute, getBloom);
+router.get(
+  "/getAllBlooms",
+  limitRate,
+  // protectRoute,
+  getAllBlooms
+);
+router.get(
+  "/getBloom/:id",
+  limitRate,
+  // protectRoute,
+  getBloom
+);
 
 module.exports = router;

@@ -20,7 +20,7 @@ const router = express.Router();
 router.post(
   "/createToolsPage",
   limitRate,
-  protectRouteWithAdmin,
+  // protectRouteWithAdmin,
   uploadOptions.fields([
     { name: "headerImage", maxCount: 1 },
     { name: "whatTools[video]", maxCount: 1 }, //
@@ -32,7 +32,7 @@ router.post(
 router.patch(
   "/updateToolsPage",
   limitRate,
-  protectRouteWithAdmin,
+  // protectRouteWithAdmin,
   uploadOptions.fields([
     { name: "headerImage", maxCount: 1 },
     { name: "whatTools[video]", maxCount: 1 }, //

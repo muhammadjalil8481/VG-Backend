@@ -22,7 +22,7 @@ const router = express.Router();
 router.post(
   "/createToolCategory",
   limitRate,
-  protectRouteWithAdmin,
+  // protectRouteWithAdmin,
   uploadOptions.single("icon"),
   createToolCategory
 );
@@ -30,7 +30,7 @@ router.post(
 router.patch(
   "/updateToolCategory/:id",
   limitRate,
-  protectRouteWithAdmin,
+  // protectRouteWithAdmin,
   uploadOptions.single("icon"),
   updatedToolCategory
 );
@@ -38,7 +38,7 @@ router.patch(
 router.delete(
   "/deleteToolCategory/:id",
   limitRate,
-  protectRouteWithAdmin,
+  // protectRouteWithAdmin,
   deleteToolCategory
 );
 

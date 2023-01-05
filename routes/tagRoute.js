@@ -26,7 +26,7 @@ router.param("id", checkId);
 router.post(
   "/createTag",
   limitRate,
-  protectRouteWithAdmin,
+  // protectRouteWithAdmin,
   uploadOptions.single("image"),
   checkTeachers,
   createTag
@@ -35,15 +35,30 @@ router.post(
 router.patch(
   "/updateTag/:id",
   limitRate,
-  protectRouteWithAdmin,
+  // protectRouteWithAdmin,
   uploadOptions.single("image"),
   checkTeachers,
   updateTag
 );
 
-router.delete("/deleteTag/:id", limitRate, protectRouteWithAdmin, deleteTag);
+router.delete(
+  "/deleteTag/:id",
+  limitRate,
+  // protectRouteWithAdmin,
+  deleteTag
+);
 
-router.get("/getAllTags", limitRate, protectRoute, getAllTags);
-router.get("/getTag/:id", limitRate, protectRoute, getTag);
+router.get(
+  "/getAllTags",
+  limitRate,
+  // protectRoute,
+  getAllTags
+);
+router.get(
+  "/getTag/:id",
+  limitRate,
+  //  protectRoute,
+  getTag
+);
 
 module.exports = router;

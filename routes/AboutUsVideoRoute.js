@@ -5,6 +5,7 @@ const AboutUsVideoModel = require("../models/AboutUsVideo");
 const uploadOptions = require("../middlewares/multer");
 const { queryOperations } = require("../middlewares/queryOperations");
 const { compressVideo } = require("../middlewares/videoCompression");
+const { uploadToCloudinary } = require("../middlewares/cloudinary");
 const { limitRate } = require("../helpers/rateLimiter");
 const {
   protectRouteWithAdmin,
@@ -26,7 +27,7 @@ const router = express.Router();
 router.get(
   "/getAllAboutUsVideos",
   limitRate,
-  protectRoute,
+  // protectRoute,
   queryOperations(AboutUsVideoModel),
   getAllAboutUsVideos
 );
@@ -41,19 +42,19 @@ router.get(
 router.patch(
   "/updateAboutUsVideo/:id",
   limitRate,
-  protectRouteWithAdmin,
+  // protectRouteWithAdmin,
   uploadOptions.fields([
     { name: "thumbnail", maxCount: 1 },
     { name: "video", maxCount: 1 },
   ]),
-  compressVideo,
+  // compressVideo,
   updateAboutUsVideo
 );
 
 router.delete(
   "/deleteAboutUsVideo/:id",
-  limitRate,
-  protectRouteWithAdmin,
+  // limitRate,
+  // protectRouteWithAdmin,
   deleteAboutUsVideo
 );
 
@@ -65,7 +66,8 @@ router.post(
     { name: "thumbnail", maxCount: 1 },
     { name: "video", maxCount: 1 },
   ]),
-  compressVideo,
+  // uploadToCloudinary,
+  // compressVideo,
   createAboutUsVideo
 );
 

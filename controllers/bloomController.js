@@ -1,20 +1,21 @@
 const BloomModel = require("../models/BloomModel");
 const deleteFile = require("../helpers/deleteFile");
 const generateError = require("../helpers/generateError");
+const deleteFromCloduinary = require("../helpers/deleteFromCloudinary");
+const path = require("path");
 
-exports.createBloom = async (req, res,next) => {
+exports.createBloom = async (req, res, next) => {
   try {
     const { title, description } = req.body;
 
     if (!title || !description || !req.file)
       return generateError(req, res, 400, "Please provide required info");
 
-    const { filename } = req.file;
-    const basePath = `${req.protocol}://${req.get("host")}/uploads/`;
+    const filename = req.file;
 
     const bloom = await BloomModel.create({
       ...req.body,
-      image: `${basePath}${filename}`,
+      image: filename?.path,
     });
 
     return res.status(201).json({
@@ -26,7 +27,7 @@ exports.createBloom = async (req, res,next) => {
   }
 };
 
-exports.updateBloom = async (req, res,next) => {
+exports.updateBloom = async (req, res, next) => {
   try {
     const { id } = req.params;
     let { image, description } = req.body;
@@ -40,14 +41,11 @@ exports.updateBloom = async (req, res,next) => {
         "No bloom was found with provided id"
       );
     if (!image) image = bloom.image;
-    const basePath = `${req.protocol}://${req.get("host")}/uploads/`;
 
     if (req.file) {
-      let imgPath = bloom.image.split("/uploads").pop();
-      imgPath = `${__dirname}/../uploads${imgPath}`;
-      deleteFile(imgPath);
-      const imageFile = req.file.filename;
-      image = `${basePath}${imageFile}`;
+      image = `uploads/${path.parse(image.split("uploads/")[1]).name}`;
+      deleteFromCloduinary(image);
+      image = req.file?.path;
     }
 
     const updatedbloom = await BloomModel.findByIdAndUpdate(
@@ -67,7 +65,7 @@ exports.updateBloom = async (req, res,next) => {
   }
 };
 
-exports.deleteBloom = async (req, res,next) => {
+exports.deleteBloom = async (req, res, next) => {
   try {
     const { id } = req.params;
     const bloom = await BloomModel.findById(id);
@@ -78,9 +76,9 @@ exports.deleteBloom = async (req, res,next) => {
         400,
         "No bloom was found with provided id"
       );
-    let imgPath = bloom.image.split("/uploads").pop();
-    imgPath = `${__dirname}/../uploads${imgPath}`;
-    deleteFile(imgPath);
+    let { image } = bloom;
+    image = `uploads/${path.parse(image.split("uploads/")[1]).name}`;
+    deleteFromCloduinary(image);
     await BloomModel.findByIdAndDelete(id);
     return res.status(200).json({
       status: "success",
@@ -91,7 +89,7 @@ exports.deleteBloom = async (req, res,next) => {
   }
 };
 
-exports.getBloom = async (req, res,next) => {
+exports.getBloom = async (req, res, next) => {
   try {
     const { id } = req.params;
     const bloom = await BloomModel.findById(id);
@@ -111,7 +109,7 @@ exports.getBloom = async (req, res,next) => {
   }
 };
 
-exports.getAllBlooms = async (req, res,next) => {
+exports.getAllBlooms = async (req, res, next) => {
   try {
     const blooms = await BloomModel.find();
     if (!blooms || blooms.length < 1)

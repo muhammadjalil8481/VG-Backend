@@ -1,8 +1,8 @@
 const rateLimiter = require("express-rate-limit");
 
 exports.limitRate = rateLimiter({
-  max: 1000,
-  windowMs: 10 * 60 * 1000,
+  max: 100,
+  windowMs: 1 * 60 * 1000,
   message: "Too many attempts. Try again later.",
   // skipFailedRequests: true,
   handler: (req, res, next) => {
@@ -13,6 +13,11 @@ exports.limitRate = rateLimiter({
   },
 });
 
+exports.limitOTPRate = rateLimiter({
+  max: 1,
+  windowMs: 2 * 60 * 1000,
+  message: "You can request 1 otp resend request in 2 minutes",
+});
 // exports.videoRateLimit = rateLimiter({
 //   max: 1000,
 //   windowMs: 1000,

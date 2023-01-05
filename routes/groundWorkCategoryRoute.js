@@ -1,6 +1,7 @@
 const express = require("express");
 // Middlewares
 const uploadOptions = require("../middlewares/multer");
+const { uploadToCloudinary } = require("../middlewares/cloudinary");
 const {
   protectRouteWithAdmin,
   protectRoute,
@@ -25,6 +26,7 @@ router.post(
   // protectRouteWithAdmin,
   // uploadOptions.single("icon"),
   uploadOptions.single("icon"),
+  // uploadToCloudinary,
   createGroundWorkCategory
 );
 

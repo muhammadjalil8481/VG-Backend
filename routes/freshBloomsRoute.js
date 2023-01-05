@@ -31,8 +31,8 @@ router.param("id", checkId);
 router.post(
   "/createFreshBloomVideo",
   limitRate,
-  protectRouteWithAdmin,
-  compressVideo,
+  // protectRouteWithAdmin,
+  // compressVideo,
   uploadOptions.fields([
     { name: "thumbnail", maxCount: 1 },
     { name: "video", maxCount: 1 },
@@ -44,8 +44,8 @@ router.post(
 router.patch(
   "/updateFreshBloomVideo/:id",
   limitRate,
-  protectRouteWithAdmin,
-  compressVideo,
+  // protectRouteWithAdmin,
+  // compressVideo,
   uploadOptions.fields([
     { name: "thumbnail", maxCount: 1 },
     { name: "video", maxCount: 1 },
@@ -56,21 +56,21 @@ router.patch(
 router.delete(
   "/deleteFreshBloomVideo/:id",
   limitRate,
-  protectRouteWithAdmin,
+  // protectRouteWithAdmin,
   deleteFreshBloomVideo
 );
 
 router.get(
   "/getFreshBloomVideos",
   limitRate,
-  protectRoute,
+  // protectRoute,
   queryOperations(FreshBloomsModel),
   getAllFreshBloomsVideo
 );
 router.get(
   "/getFreshBloomVideo/:id",
   limitRate,
-  protectRoute,
+  // protectRoute,
   getFreshBloomVideo
 );
 

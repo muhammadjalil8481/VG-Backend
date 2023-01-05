@@ -29,7 +29,7 @@ router.param("id", checkId);
 router.post(
   "/createTeacher",
   limitRate,
-  protectRouteWithAdmin,
+  // protectRouteWithAdmin,
   uploadOptions.fields([
     { name: "image", maxCount: 1 },
     { name: "video", maxCount: 1 },
@@ -42,7 +42,7 @@ router.post(
 router.patch(
   "/updateTeacher/:id",
   limitRate,
-  protectRouteWithAdmin,
+  // protectRouteWithAdmin,
   uploadOptions.fields([
     { name: "image", maxCount: 1 },
     { name: "video", maxCount: 1 },
@@ -55,15 +55,20 @@ router.patch(
 router.delete(
   "/deleteTeacher/:id",
   limitRate,
-  protectRouteWithAdmin,
+  // protectRouteWithAdmin,
   deleteTeacher
 );
 router.get(
   "/getAllTeachers",
   limitRate,
-  protectRoute,
+  // protectRoute,
   queryOperations(TeacherModel),
   getAllTeachers
 );
-router.get("/getTeacher/:id", limitRate, protectRoute, getATeacher);
+router.get(
+  "/getTeacher/:id",
+  limitRate,
+  // protectRoute,
+  getATeacher
+);
 module.exports = router;

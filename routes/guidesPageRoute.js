@@ -20,7 +20,7 @@ const router = express.Router();
 router.post(
   "/createGuidesPage",
   limitRate,
-  protectRouteWithAdmin,
+  // protectRouteWithAdmin,
   uploadOptions.fields([
     { name: "headerImage", maxCount: 1 },
     { name: "vibeGuides[video]", maxCount: 1 }, //
@@ -34,7 +34,7 @@ router.post(
 router.patch(
   "/updateGuidesPage",
   limitRate,
-  protectRouteWithAdmin,
+  // protectRouteWithAdmin,
   uploadOptions.fields([
     { name: "headerImage", maxCount: 1 },
     { name: "vibeGuides[video]", maxCount: 1 }, //

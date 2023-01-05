@@ -2,6 +2,7 @@ const express = require("express");
 // Middlewares
 const uploadOptions = require("../middlewares/multer");
 const { limitRate } = require("../helpers/rateLimiter");
+const { uploadToCloudinary } = require("../middlewares/cloudinary");
 const {
   protectRouteWithAdmin,
   protectRoute,
@@ -19,7 +20,7 @@ const router = express.Router();
 router.post(
   "/createGroundWorkPage",
   limitRate,
-  protectRouteWithAdmin,
+  // protectRouteWithAdmin,
   uploadOptions.fields([
     { name: "headerImage", maxCount: 1 },
     { name: "whyGroundWork[video]", maxCount: 1 }, //
@@ -31,7 +32,7 @@ router.post(
 router.patch(
   "/updateGroundWorkPage",
   limitRate,
-  protectRoute,
+  // protectRoute,
   uploadOptions.fields([
     { name: "headerImage", maxCount: 1 },
     { name: "whyGroundWork[video]", maxCount: 1 }, //

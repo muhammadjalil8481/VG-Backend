@@ -1,9 +1,10 @@
 // External Imports
 const ffmpeg = require("fluent-ffmpeg");
 const ffprobeStatic = require("ffprobe-static");
-const path = require("path");
 // Model
 const AboutUsVideoModel = require("../models/AboutUsVideo");
+const path = require("path");
+const deleteFromCloduinary = require("../helpers/deleteFromCloudinary");
 // Helper function
 const generateError = require("../helpers/generateError");
 const deleteFile = require("../helpers/deleteFile");
@@ -27,16 +28,16 @@ exports.createAboutUsVideo = async (req, res, next) => {
       return generateError(req, res, 400, "Please provide required info");
 
     // 2 : Get video and thumbnail uploads
-    console.log("step 2");
-    const basePath = `${req.protocol}://${req.get("host")}/uploads/`;
-    const thumbnailfile = req.files["thumbnail"][0].filename;
-    const videofile = req.files["video"][0].filename;
+    const thumbnailfile = req.files["thumbnail"][0].path;
+    const videofile = req.files["video"][0].path;
 
     // 3 : Create AboutUsVideo
     const aboutUsVideo = await AboutUsVideoModel.create({
       ...req.body,
-      video: `${basePath}${videofile}`,
-      thumbnail: `${basePath}${thumbnailfile}`,
+      video: videofile,
+      thumbnail: thumbnailfile,
+      // video: `${basePath}${videofile}`,
+      // thumbnail: `${basePath}${thumbnailfile}`,
     });
 
     // 4 : Finally return the response
@@ -66,31 +67,23 @@ exports.updateAboutUsVideo = async (req, res, next) => {
         "No about us video was found with provided id"
       );
 
-    // 3 : Check if new thumbnail or video is provided
+    //3 : Get video and thumbnail existing paths
+    thumbnail = aboutUsVideoExist.thumbnail;
+    video = aboutUsVideoExist.video;
+
+    // 4 : Check if new thumbnail or video is provided
     // If either is provided delete existing thumbnail or video
     // And attach new thumbnail and video
     // If not provided attach the existing thumbnail and video
-    const basePath = `${req.protocol}://${req.get("host")}/uploads/`;
     if (req.files["thumbnail"]) {
-      let imgPath = aboutUsVideoExist.thumbnail.split("/uploads").pop();
-      imgPath = `${__dirname}/../uploads${imgPath}`;
-      deleteFile(imgPath);
-      const thumbnailfile = req.files["thumbnail"][0].filename;
-      thumbnail = `${basePath}${thumbnailfile}`;
+      thumbnail = `uploads/${path.parse(thumbnail.split("uploads/")[1]).name}`;
+      deleteFromCloduinary(thumbnail);
+      thumbnail = req.files["thumbnail"][0]?.path;
     }
     if (req.files["video"]) {
-      let videoPath = aboutUsVideoExist.video.split("/uploads").pop();
-      let videoPathName = path.parse(videoPath).name;
-      let videoPathExt = path.parse(videoPath).ext;
-
-      videoPath = `${__dirname}/../uploads${videoPath}`;
-      let videoPath480 = `${__dirname}/../uploads/${videoPathName}-480p${videoPathExt}`;
-      let videoPath360 = `${__dirname}/../uploads/${videoPathName}-360p${videoPathExt}`;
-      deleteFile(videoPath);
-      deleteFile(videoPath480);
-      deleteFile(videoPath360);
-      const videofile = req.files["video"][0].filename;
-      video = `${basePath}${videofile}`;
+      video = `uploads/${path.parse(video.split("uploads/")[1]).name}`;
+      deleteFromCloduinary(video, "video");
+      video = req.files["video"][0]?.path;
     }
 
     if (!thumbnail) thumbnail = toolVideo.thumbnail;
@@ -131,19 +124,12 @@ exports.deleteAboutUsVideo = async (req, res, next) => {
         "No about us video was found with provided id"
       );
 
-    // 2 : Get thumbnaila and video and delete them
-    let imgPath = aboutUsVideo.thumbnail.split("/uploads").pop();
-    imgPath = `${__dirname}/../uploads${imgPath}`;
-    deleteFile(imgPath);
-    let videoPath = aboutUsVideo.video.split("/uploads").pop();
-    let videoPathName = path.parse(videoPath).name;
-    let videoPathExt = path.parse(videoPath).ext;
-    videoPath = `${__dirname}/../uploads${videoPath}`;
-    let videoPath480 = `${__dirname}/../uploads/${videoPathName}-480p${videoPathExt}`;
-    let videoPath360 = `${__dirname}/../uploads/${videoPathName}-360p${videoPathExt}`;
-    deleteFile(videoPath);
-    deleteFile(videoPath480);
-    deleteFile(videoPath360);
+    // 2 : Get existing file paths and delete them
+    let { thumbnail, video } = aboutUsVideo;
+    thumbnail = `uploads/${path.parse(thumbnail.split("uploads/")[1]).name}`;
+    deleteFromCloduinary(thumbnail);
+    video = `uploads/${path.parse(video.split("uploads/")[1]).name}`;
+    deleteFromCloduinary(video, "video");
 
     // 3 : Delete the aboutUsVideo
     await AboutUsVideoModel.findByIdAndDelete(id);
@@ -179,6 +165,7 @@ exports.getAllAboutUsVideos = async (req, res, next) => {
       status: "success",
       numOfVideos: aboutUsVideos.length,
       data,
+      // aboutUsVideos,
     });
   } catch (err) {
     next(err);
@@ -201,9 +188,7 @@ exports.getAboutUsVideo = async (req, res, next) => {
 
     // 2 : Get video duration
     const duration = await getVideoDuration(aboutUsVideo.video);
-    // let videoName = aboutUsVideo.video.split("/uploads").pop();
-    // let videoPath = `${__dirname}/../uploads${videoName}`;
-    // videoName = videoName.replace("/", "");
+    console.log("duration", duration);
 
     // 3 : finally return the response
     return res.status(200).json({

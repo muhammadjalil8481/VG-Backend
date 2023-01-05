@@ -22,24 +22,34 @@ const router = express.Router();
 router.post(
   "/createAvatar",
   limitRate,
-  protectRouteWithAdmin,
+  // protectRouteWithAdmin,
   uploadOptions.single("image"),
   createAvatar
 );
 router.delete(
   "/deleteAvatar/:id",
   limitRate,
-  protectRouteWithAdmin,
+  // protectRouteWithAdmin,
   deleteAvatar
 );
 router.patch(
   "/updateAvatar/:id",
   limitRate,
-  protectRouteWithAdmin,
+  // protectRouteWithAdmin,
   uploadOptions.single("image"),
   updateAvatar
 );
-router.get("/getAllAvatars", limitRate, protectRoute, getAllAvatars);
-router.get("/getAvatar/:id", limitRate, protectRoute, getAvatar);
+router.get(
+  "/getAllAvatars",
+  limitRate,
+  // protectRoute,
+  getAllAvatars
+);
+router.get(
+  "/getAvatar/:id",
+  limitRate,
+  // protectRoute,
+  getAvatar
+);
 
 module.exports = router;

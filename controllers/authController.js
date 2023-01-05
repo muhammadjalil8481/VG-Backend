@@ -85,7 +85,8 @@ exports.registerUser = async (req, res, next) => {
         req,
         res,
         400,
-        "User is registered but has not completed verification, Please Sign Up Again"
+        "User is registered but has not completed verification, Please Sign Up Again",
+        "reload"
       );
     }
     if (checkExistingUserName?.verified === false) {
@@ -94,7 +95,8 @@ exports.registerUser = async (req, res, next) => {
         req,
         res,
         400,
-        "User is registered but has not completed verification, Please Sign Up Again"
+        "User is registered but has not completed verification, Please Sign Up Again",
+        "reload"
       );
     }
 
@@ -135,7 +137,7 @@ exports.registerUser = async (req, res, next) => {
 
     // Finally return the response
     return res.status(201).json({
-      status: "passed",
+      status: "ok",
       user: newUser,
     });
   } catch (err) {
@@ -179,9 +181,9 @@ exports.verifyUser = async (req, res, next) => {
 
     // 5 : Return the response
     return res.status(200).json({
-      status: "passed",
+      status: "ok",
       message: "Account Verified",
-      updatedUser,
+      data: updatedUser,
     });
   } catch (err) {
     next(err);
@@ -203,8 +205,8 @@ exports.resendOTP = async (req, res, next) => {
     );
     //  3 : Finally return the response
     return res.status(200).json({
-      status: "passed",
-      updatedOTP: updatedUser.otp,
+      status: "ok",
+      data: updatedUser,
     });
   } catch (err) {
     next(err);
@@ -370,7 +372,7 @@ exports.loginUser = async (req, res, next) => {
     console.log("cookie sent");
     // 6 : Finally return the user
     return res.status(200).json({
-      status: "passed",
+      status: "ok",
       token,
       user,
     });
@@ -402,7 +404,7 @@ exports.acceptPay = async (req, res, next) => {
     return res.status(200).json({
       status: "success",
       acceptPay,
-      attachPay,
+      data: attachPay,
     });
   } catch (err) {
     next(err);

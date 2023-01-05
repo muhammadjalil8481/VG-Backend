@@ -33,22 +33,27 @@ const router = express.Router();
 router.get(
   "/getAllToolVideos",
   limitRate,
-  protectRoute,
+  // protectRoute,
   queryOperations(ToolVideoModel),
   // getToolVideosByCategory
   getAllToolVideos
 );
 
-router.get("/getToolVideo/:id", limitRate, protectRoute, getToolVideo);
+router.get(
+  "/getToolVideo/:id",
+  limitRate,
+  // protectRoute,
+  getToolVideo
+);
 router.post(
   "/createToolVideo",
   limitRate,
-  protectRouteWithAdmin,
+  // protectRouteWithAdmin,
   uploadOptions.fields([
     { name: "thumbnail", maxCount: 1 },
     { name: "video", maxCount: 1 },
   ]),
-  compressVideo,
+  // compressVideo,
   checkToolCategory,
   checkTags,
   checkToolVideo,
@@ -59,12 +64,12 @@ router.post(
 router.patch(
   "/updateToolVideo/:id",
   limitRate,
-  protectRouteWithAdmin,
+  // protectRouteWithAdmin,
   uploadOptions.fields([
     { name: "thumbnail", maxCount: 1 },
     { name: "video", maxCount: 1 },
   ]),
-  compressVideo,
+  // compressVideo,
   checkToolCategory,
   checkTags,
   checkToolVideo,
@@ -75,7 +80,7 @@ router.patch(
 router.delete(
   "/deleteToolVideo/:id",
   limitRate,
-  protectRouteWithAdmin,
+  // protectRouteWithAdmin,
   deleteToolVideo
 );
 router.get("/getTopTools", limitRate, protectRoute, getTopTools);

@@ -2,6 +2,7 @@ const FreshBloom = require("../models/FreshBloomsModel");
 const generateError = require("../helpers/generateError");
 const deleteFile = require("../helpers/deleteFile");
 const path = require("path");
+const deleteFromCloduinary = require("../helpers/deleteFromCloudinary");
 
 exports.checkId = async (req, res, next, val) => {
   try {
@@ -21,7 +22,7 @@ exports.checkId = async (req, res, next, val) => {
     next(err);
   }
 };
-exports.createFreshBloomVideo = async (req, res,next) => {
+exports.createFreshBloomVideo = async (req, res, next) => {
   try {
     const {
       title,
@@ -39,14 +40,13 @@ exports.createFreshBloomVideo = async (req, res,next) => {
     if (!title || !type || !description || !tags)
       return generateError(req, res, 400, "Please provide required info");
 
-    const basePath = `${req.protocol}://${req.get("host")}/uploads/`;
-    const thumbnailfile = req.files["thumbnail"][0].filename;
-    const videofile = req.files["video"][0].filename;
+    const thumbnailfile = req.files["thumbnail"][0].path;
+    const videofile = req.files["video"][0].path;
 
     const freshBloomVideo = await FreshBloom.create({
       ...req.body,
-      video: `${basePath}${videofile}`,
-      thumbnail: `${basePath}${thumbnailfile}`,
+      video: videofile,
+      thumbnail: thumbnailfile,
     });
 
     return res.status(201).json({
@@ -58,36 +58,25 @@ exports.createFreshBloomVideo = async (req, res,next) => {
   }
 };
 
-exports.updateFreshBloomsVideo = async (req, res,next) => {
+exports.updateFreshBloomsVideo = async (req, res, next) => {
   try {
     const freshBloomVideo = req.freshBloom;
 
-    let { thumbnail, video } = req.body;
+    let { thumbnail, video } = freshBloomVideo;
+    if (req.files["thumbnail"]) {
+      thumbnail = `uploads/${path.parse(thumbnail.split("uploads/")[1]).name}`;
+      deleteFromCloduinary(thumbnail);
+      thumbnail = req.files["thumbnail"][0]?.path;
+    }
+    if (req.files["video"]) {
+      video = `uploads/${path.parse(video.split("uploads/")[1]).name}`;
+      deleteFromCloduinary(video, "video");
+      video = req.files["video"][0]?.path;
+    }
+
     if (!thumbnail) thumbnail = freshBloomVideo.thumbnail;
     if (!video) video = freshBloomVideo.video;
 
-    const basePath = `${req.protocol}://${req.get("host")}/uploads/`;
-    if (req.files["thumbnail"]) {
-      let imgPath = freshBloomVideo.thumbnail.split("/uploads").pop();
-      imgPath = `${__dirname}/../uploads${imgPath}`;
-      deleteFile(imgPath);
-      const thumbnailfile = req.files["thumbnail"][0].filename;
-      thumbnail = `${basePath}${thumbnailfile}`;
-    }
-    if (req.files["video"]) {
-      let videoPath = freshBloomVideo.video.split("/uploads").pop();
-      let videoPathName = path.parse(videoPath).name;
-      let videoPathExt = path.parse(videoPath).ext;
-
-      videoPath = `${__dirname}/../uploads${videoPath}`;
-      let videoPath480 = `${__dirname}/../uploads/${videoPathName}-480p${videoPathExt}`;
-      let videoPath360 = `${__dirname}/../uploads/${videoPathName}-360p${videoPathExt}`;
-      deleteFile(videoPath);
-      deleteFile(videoPath480);
-      deleteFile(videoPath360);
-      const videofile = req.files["video"][0].filename;
-      video = `${basePath}${videofile}`;
-    }
     const updateFreshBloomsVideo = await FreshBloom.findByIdAndUpdate(
       freshBloomVideo._id,
       {
@@ -106,21 +95,14 @@ exports.updateFreshBloomsVideo = async (req, res,next) => {
   }
 };
 
-exports.deleteFreshBloomVideo = async (req, res,next) => {
+exports.deleteFreshBloomVideo = async (req, res, next) => {
   try {
     const freshBloomVideo = req.freshBloom;
-    let imgPath = freshBloomVideo.thumbnail.split("/uploads").pop();
-    imgPath = `${__dirname}/../uploads${imgPath}`;
-    deleteFile(imgPath);
-    let videoPath = freshBloomVideo.video.split("/uploads").pop();
-    let videoPathName = path.parse(videoPath).name;
-    let videoPathExt = path.parse(videoPath).ext;
-    videoPath = `${__dirname}/../uploads${videoPath}`;
-    let videoPath480 = `${__dirname}/../uploads/${videoPathName}-480p${videoPathExt}`;
-    let videoPath360 = `${__dirname}/../uploads/${videoPathName}-360p${videoPathExt}`;
-    deleteFile(videoPath);
-    deleteFile(videoPath480);
-    deleteFile(videoPath360);
+    let { thumbnail, video } = freshBloomVideo;
+    thumbnail = `uploads/${path.parse(thumbnail.split("uploads/")[1]).name}`;
+    deleteFromCloduinary(thumbnail);
+    video = `uploads/${path.parse(video.split("uploads/")[1]).name}`;
+    deleteFromCloduinary(video, "video");
 
     await FreshBloom.findByIdAndDelete(freshBloomVideo._id);
     return res.status(200).json({
@@ -132,7 +114,7 @@ exports.deleteFreshBloomVideo = async (req, res,next) => {
   }
 };
 
-exports.getAllFreshBloomsVideo = async (req, res,next) => {
+exports.getAllFreshBloomsVideo = async (req, res, next) => {
   try {
     // }
     const result = req.result;
@@ -148,7 +130,7 @@ exports.getAllFreshBloomsVideo = async (req, res,next) => {
   }
 };
 
-exports.getFreshBloomVideo = async (req, res,next) => {
+exports.getFreshBloomVideo = async (req, res, next) => {
   try {
     const freshBloomVideo = await FreshBloom.findById(req.params.id).populate(
       "tags",
@@ -169,4 +151,3 @@ exports.getFreshBloomVideo = async (req, res,next) => {
     next(err);
   }
 };
-

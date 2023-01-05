@@ -1,7 +1,8 @@
 const GroundWorkCategoryModel = require("../models/GroundWorkCategoryModel");
 const generateError = require("../helpers/generateError");
 const deleteFile = require("../helpers/deleteFile");
-const { response } = require("express");
+const deleteFromCloduinary = require("../helpers/deleteFromCloudinary");
+const path = require("path");
 
 exports.checkId = async (req, res, next, val) => {
   try {
@@ -32,13 +33,13 @@ exports.createGroundWorkCategory = async (req, res, next) => {
       return generateError(req, res, 400, "Please provide required info");
 
     // 3 : Get filename of icon and basepath
-    const { filename } = req.file;
-    const basePath = `${req.protocol}://${req.get("host")}/uploads/`;
+    const filename = req.file;
 
     // 4 : Create new groundwork category
     const groundWorkCategory = await GroundWorkCategoryModel.create({
       ...req.body,
-      icon: `${basePath}${filename}`,
+      // icon: `${basePath}${filename}`,
+      icon: filename.path,
     });
 
     // 5 : Finally return the response
@@ -55,15 +56,13 @@ exports.updateGroundWorkCategory = async (req, res, next) => {
   try {
     const gwCategory = req.groundwork;
     let { icon } = req.body;
-    if (!icon) icon = gwCategory.icon;
-    const basePath = `${req.protocol}://${req.get("host")}/uploads/`;
+    if (!icon) icon = gwCategory?.icon;
+    // const basePath = `${req.protocol}://${req.get("host")}/uploads/`;
 
     if (req.file) {
-      let imgPath = gwCategory.icon.split("/uploads").pop();
-      imgPath = `${__dirname}/../uploads${imgPath}`;
-      deleteFile(imgPath);
-      const iconFile = req.file.filename;
-      icon = `${basePath}${iconFile}`;
+      icon = `uploads/${path.parse(icon.split("uploads/")[1]).name}`;
+      deleteFromCloduinary(icon);
+      icon = req.file?.path;
     }
 
     const updatedGWCategory = await GroundWorkCategoryModel.findByIdAndUpdate(
@@ -86,10 +85,13 @@ exports.updateGroundWorkCategory = async (req, res, next) => {
 exports.deleteGroundWorkCategory = async (req, res, next) => {
   try {
     const gwCategory = req.groundwork;
-    let imgPath = gwCategory.icon.split("/uploads").pop();
-    imgPath = `${__dirname}/../uploads${imgPath}`;
-    deleteFile(imgPath);
+    // let imgPath = gwCategory.icon.split("/uploads").pop();
+    // imgPath = `${__dirname}/../uploads${imgPath}`;
+    // deleteFile(imgPath);
     await GroundWorkCategoryModel.findByIdAndDelete(gwCategory._id);
+    let icon = gwCategory?.icon;
+    icon = `uploads/${path.parse(icon.split("uploads/")[1]).name}`;
+    deleteFromCloduinary(icon);
     return res.status(200).json({
       status: "success",
       message: `${gwCategory.title} category has been deleted successfully`,
@@ -99,7 +101,7 @@ exports.deleteGroundWorkCategory = async (req, res, next) => {
   }
 };
 
-exports.getAllGroundWorkCategories = async (req, res,next) => {
+exports.getAllGroundWorkCategories = async (req, res, next) => {
   try {
     const gwCategories = await GroundWorkCategoryModel.find();
     if (!gwCategories || gwCategories.length < 1)
@@ -119,7 +121,7 @@ exports.getAllGroundWorkCategories = async (req, res,next) => {
   }
 };
 
-exports.getGroundWorkCategory = async (req, res,next) => {
+exports.getGroundWorkCategory = async (req, res, next) => {
   try {
     const gwCategory = await GroundWorkCategoryModel.findById(req?.params?.id);
     if (!gwCategory)

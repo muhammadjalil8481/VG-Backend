@@ -1,29 +1,38 @@
 const GuidesPageModel = require("../models/GuidesPageModel");
 const generateError = require("../helpers/generateError");
 const deleteFile = require("../helpers/deleteFile");
+const path = require("path");
+const deleteFromCloduinary = require("../helpers/deleteFromCloudinary");
 
 exports.createGuidesPage = async (req, res, next) => {
   try {
+    const checkGuidesPage = await GuidesPageModel.find();
+    if (checkGuidesPage?.length >= 1)
+      return generateError(
+        req,
+        res,
+        400,
+        "Guides Page already exists ? you can't create another but update though"
+      );
     let { headerImage, vibeGuides, teachers } = req.body;
-    const basePath = `${req.protocol}://${req.get("host")}/uploads/`;
-    headerImage = req.files["headerImage"][0].filename;
-    const vibeGuidesVideo = req.files["vibeGuides[video]"][0].filename;
-    const vibeGuidesImage = req.files["vibeGuides[image]"][0].filename;
-    const teachersVideo = req.files["teachers[video]"][0].filename;
-    const teachersImage = req.files["teachers[image]"][0].filename;
+    headerImage = req.files["headerImage"][0].path;
+    const vibeGuidesVideo = req.files["vibeGuides[video]"][0].path;
+    const vibeGuidesImage = req.files["vibeGuides[image]"][0].path;
+    const teachersVideo = req.files["teachers[video]"][0].path;
+    const teachersImage = req.files["teachers[image]"][0].path;
 
     const guidesPage = await GuidesPageModel.create({
       ...req.body,
-      headerImage: `${basePath}${headerImage}`,
+      headerImage: headerImage,
       vibeGuides: {
         text: vibeGuides.text,
-        video: `${basePath}${vibeGuidesVideo}`,
-        image: `${basePath}${vibeGuidesImage}`,
+        video: vibeGuidesVideo,
+        image: vibeGuidesImage,
       },
       teachers: {
         text: teachers.text,
-        video: `${basePath}${teachersVideo}`,
-        image: `${basePath}${teachersImage}`,
+        video: teachersVideo,
+        image: teachersImage,
       },
     });
 
@@ -39,75 +48,68 @@ exports.createGuidesPage = async (req, res, next) => {
 exports.updateGuidesPage = async (req, res, next) => {
   try {
     const guidesPage = await GuidesPageModel.find();
-    let { headerImage, vibeGuides, teachers } = req.body;
-
-    const basePath = `${req.protocol}://${req.get("host")}/uploads/`;
+    let { headerImage, vibeGuides, teachers } = guidesPage[0];
 
     // Header Image
     if (req.files["headerImage"]) {
-      let path = guidesPage[0]?.headerImage?.split("/uploads").pop();
-      path = `${__dirname}/../uploads${path}`;
-      deleteFile(path);
-      const headerImageFile = req.files["headerImage"][0].filename;
-      headerImage = `${basePath}${headerImageFile}`;
+      headerImage = `uploads/${
+        path.parse(headerImage.split("uploads/")[1]).name
+      }`;
+      deleteFromCloduinary(headerImage);
+      headerImage = req.files["headerImage"][0]?.path;
     }
 
     // Vibe Guides
     let vibeGuidesVideo = null;
     if (req.files["vibeGuides[video]"]) {
-      let path = guidesPage[0].vibeGuides?.video?.split("/uploads").pop();
-      path = `${__dirname}/../uploads${path}`;
-      deleteFile(path);
-      vibeGuidesVideo = req.files["vibeGuides[video]"][0].filename;
-      vibeGuidesVideo = `${basePath}${vibeGuidesVideo}`;
+      vibeGuidesVideo = `uploads/${
+        path.parse(vibeGuides?.video?.split("uploads/")[1]).name
+      }`;
+      deleteFromCloduinary(vibeGuidesVideo, "video");
+      vibeGuidesVideo = req.files["vibeGuides[video]"][0]?.path;
     } else {
-      vibeGuidesVideo = guidesPage[0].vibeGuides.video;
+      vibeGuidesVideo = gwPage[0].vibeGuides.video;
     }
     let vibeGuidesThumbnail = null;
     if (req.files["vibeGuides[image]"]) {
-      let path = guidesPage[0].vibeGuides?.image?.split("/uploads").pop();
-      console.log("mekdmk", path);
-      path = `${__dirname}/../uploads${path}`;
-      deleteFile(path);
-      vibeGuidesThumbnail = req.files["vibeGuides[image]"][0].filename;
-      console.log("smwos", vibeGuidesThumbnail);
-      vibeGuidesThumbnail = `${basePath}${vibeGuidesThumbnail}`;
+      // console.log("embody image", vibeGuides);
+      vibeGuidesThumbnail = `uploads/${
+        path.parse(vibeGuides?.image?.split("uploads/")[1]).name
+      }`;
+      deleteFromCloduinary(vibeGuidesThumbnail);
+      vibeGuidesThumbnail = req.files["vibeGuides[image]"][0]?.path;
     } else {
-      vibeGuidesThumbnail = guidesPage[0].vibeGuides.image;
-      console.log("swms", vibeGuidesThumbnail);
+      vibeGuidesThumbnail = gwPage[0].vibeGuides.image;
     }
-    let vibeGuidesText = vibeGuides?.text
-      ? vibeGuides.text
-      : guidesPage[0].vibeGuides.text;
+    let vibeGuidesText = req?.body?.vibeGuides?.text
+      ? req?.body?.vibeGuides.text
+      : gwPage[0].vibeGuides.text;
 
     // teachers
     let teachersVideo = null;
     if (req.files["teachers[video]"]) {
-      let path = guidesPage[0].teachers?.video?.split("/uploads").pop();
-      path = `${__dirname}/../uploads${path}`;
-      deleteFile(path);
-      teachersVideo = req.files["teachers[video]"][0].filename;
-      teachersVideo = `${basePath}${teachersVideo}`;
+      teachersVideo = `uploads/${
+        path.parse(teachers?.video?.split("uploads/")[1]).name
+      }`;
+      deleteFromCloduinary(teachersVideo, "video");
+      teachersVideo = req.files["teachers[video]"][0]?.path;
     } else {
-      teachersVideo = guidesPage[0].teachers.video;
-      console.log("wmls", teachersVideo);
+      teachersVideo = gwPage[0].teachers.video;
     }
     let teachersThumbnail = null;
     if (req.files["teachers[image]"]) {
-      let path = guidesPage[0].teachers?.image?.split("/uploads").pop();
-      console.log("mekdmk", path);
-      path = `${__dirname}/../uploads${path}`;
-      deleteFile(path);
-      teachersThumbnail = req.files["teachers[image]"][0].filename;
-      console.log("smwos", teachersThumbnail);
-      teachersThumbnail = `${basePath}${teachersThumbnail}`;
+      // console.log("embody image", teachers);
+      teachersThumbnail = `uploads/${
+        path.parse(teachers?.image?.split("uploads/")[1]).name
+      }`;
+      deleteFromCloduinary(teachersThumbnail);
+      teachersThumbnail = req.files["teachers[image]"][0]?.path;
     } else {
-      teachersThumbnail = guidesPage[0].teachers.image;
-      console.log("wnmdk", teachersThumbnail);
+      teachersThumbnail = gwPage[0].teachers.image;
     }
-    let teachersText = teachers?.text
-      ? teachers.text
-      : guidesPage[0].teachers.text;
+    let teachersText = req?.body?.teachers?.text
+      ? req?.body?.teachers.text
+      : gwPage[0].teachers.text;
 
     const updateGuidesPage = await GuidesPageModel.findByIdAndUpdate(
       guidesPage[0]._id,

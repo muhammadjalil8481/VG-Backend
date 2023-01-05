@@ -1,17 +1,16 @@
 const ResonanceFinderPage = require("../models/ResonanceFinderPage");
 const generateError = require("../helpers/generateError");
 const deleteFile = require("../helpers/deleteFile");
+const path = require("path");
+const deleteFromCloduinary = require("../helpers/deleteFromCloudinary");
 
 exports.createResonanceFinderPage = async (req, res, next) => {
   try {
     let { thumbnail, direction, video } = req.body;
     if (!direction)
       return generateError(req, res, 400, "Please provide required info");
-    const basePath = `${req.protocol}://${req.get("host")}/uploads/`;
-    thumbnail = req?.files["thumbnail"][0]?.filename;
-    video = req?.files["video"][0]?.filename;
-    thumbnail = `${basePath}${thumbnail}`;
-    video = `${basePath}${video}`;
+    thumbnail = req?.files["thumbnail"][0]?.path;
+    video = req?.files["video"][0]?.path;
 
     const checkRFPage = await ResonanceFinderPage.find();
     if (checkRFPage?.length >= 1)
@@ -47,22 +46,18 @@ exports.updateResonanceFinderPage = async (req, res, next) => {
         400,
         "ResonanceFinderPage not found , check if it exists"
       );
-    let { thumbnail, direction, video } = req.body;
+    let { thumbnail, direction, video } = rfPage[0];
 
-    const basePath = `${req.protocol}://${req.get("host")}/uploads/`;
     if (req.files["thumbnail"]) {
-      let path = rfPage[0].thumbnail.split("/uploads").pop();
-      path = `${__dirname}/../uploads${path}`;
-      deleteFile(path);
-      thumbnail = req.files["thumbnail"][0].filename;
-      thumbnail = `${basePath}${thumbnail}`;
+      thumbnail = `uploads/${path.parse(thumbnail.split("uploads/")[1]).name}`;
+      deleteFromCloduinary(thumbnail);
+      thumbnail = req.files["thumbnail"][0]?.path;
     }
+
     if (req.files["video"]) {
-      let path = rfPage[0].video.split("/uploads").pop();
-      path = `${__dirname}/../uploads${path}`;
-      deleteFile(path);
-      video = req.files["video"][0].filename;
-      video = `${basePath}${video}`;
+      video = `uploads/${path.parse(video.split("uploads/")[1]).name}`;
+      deleteFromCloduinary(video, "video");
+      video = req.files["video"][0]?.path;
     }
     if (!thumbnail) thumbnail = rfPage[0].thumbnail;
     if (!video) video = rfPage[0].video;

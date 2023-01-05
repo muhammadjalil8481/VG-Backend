@@ -1,8 +1,9 @@
 const GroundWorkVideoModel = require("../models/GroundWorkVideoModel");
 const generateError = require("../helpers/generateError");
 const deleteFile = require("../helpers/deleteFile");
-const getVideoDuration = require("../helpers/videoDuration");
 const path = require("path");
+const deleteFromCloduinary = require("../helpers/deleteFromCloudinary");
+const getVideoDuration = require("../helpers/videoDuration");
 
 exports.checkId = async (req, res, next, val) => {
   try {
@@ -73,7 +74,6 @@ exports.getGroundWorkVideo = async (req, res, next) => {
 };
 exports.createGroundWorkVideo = async (req, res, next) => {
   try {
-    console.log("createGroundWorkVideo");
     // 1 : Check and get data from body
     const {
       title,
@@ -101,15 +101,14 @@ exports.createGroundWorkVideo = async (req, res, next) => {
       return generateError(req, res, 400, "Please provide required info");
 
     // 2 : Get filename of image and video and basepath
-    const basePath = `${req.protocol}://${req.get("host")}/uploads/`;
-    const thumbnailfile = req.files["thumbnail"][0].filename;
-    const videofile = req.files["video"][0].filename;
+    const thumbnailfile = req.files["thumbnail"][0].path;
+    const videofile = req.files["video"][0].path;
 
     // 3 : Create a new groundwork video
     const groundWorkVideo = await GroundWorkVideoModel.create({
       ...req.body,
-      video: `${basePath}${videofile}`,
-      thumbnail: `${basePath}${thumbnailfile}`,
+      video: videofile,
+      thumbnail: thumbnailfile,
       // relatedContent: checkRelatedContent,
     });
 
@@ -128,8 +127,6 @@ exports.updateGroundWorkVideo = async (req, res, next) => {
     let {
       title,
       category,
-      thumbnail,
-      video,
       description,
       tags,
       relatedContent,
@@ -137,28 +134,17 @@ exports.updateGroundWorkVideo = async (req, res, next) => {
       teachers,
     } = req.body;
     const groundworkVideo = req.groundWorkVideo;
+    let { thumbnail, video } = groundworkVideo;
 
-    const basePath = `${req.protocol}://${req.get("host")}/uploads/`;
     if (req.files["thumbnail"]) {
-      let imgPath = groundworkVideo.thumbnail.split("/uploads").pop();
-      imgPath = `${__dirname}/../uploads${imgPath}`;
-      deleteFile(imgPath);
-      const thumbnailfile = req.files["thumbnail"][0].filename;
-      thumbnail = `${basePath}${thumbnailfile}`;
+      thumbnail = `uploads/${path.parse(thumbnail.split("uploads/")[1]).name}`;
+      deleteFromCloduinary(thumbnail);
+      thumbnail = req.files["thumbnail"][0]?.path;
     }
     if (req.files["video"]) {
-      let videoPath = groundworkVideo.video.split("/uploads").pop();
-      let videoPathName = path.parse(videoPath).name;
-      let videoPathExt = path.parse(videoPath).ext;
-
-      videoPath = `${__dirname}/../uploads${videoPath}`;
-      let videoPath480 = `${__dirname}/../uploads/${videoPathName}-480p${videoPathExt}`;
-      let videoPath360 = `${__dirname}/../uploads/${videoPathName}-360p${videoPathExt}`;
-      deleteFile(videoPath);
-      deleteFile(videoPath480);
-      deleteFile(videoPath360);
-      const videofile = req.files["video"][0].filename;
-      video = `${basePath}${videofile}`;
+      video = `uploads/${path.parse(video.split("uploads/")[1]).name}`;
+      deleteFromCloduinary(video, "video");
+      video = req.files["video"][0]?.path;
     }
 
     if (!title) title = groundworkVideo.title;
@@ -196,18 +182,11 @@ exports.updateGroundWorkVideo = async (req, res, next) => {
 exports.deleteGroundWorkVideo = async (req, res, next) => {
   try {
     const groundworkVideo = req.groundWorkVideo;
-    let imgPath = groundworkVideo.thumbnail.split("/uploads").pop();
-    imgPath = `${__dirname}/../uploads${imgPath}`;
-    deleteFile(imgPath);
-    let videoPath = groundworkVideo.video.split("/uploads").pop();
-    let videoPathName = path.parse(videoPath).name;
-    let videoPathExt = path.parse(videoPath).ext;
-    videoPath = `${__dirname}/../uploads${videoPath}`;
-    let videoPath480 = `${__dirname}/../uploads/${videoPathName}-480p${videoPathExt}`;
-    let videoPath360 = `${__dirname}/../uploads/${videoPathName}-360p${videoPathExt}`;
-    deleteFile(videoPath);
-    deleteFile(videoPath480);
-    deleteFile(videoPath360);
+    let { thumbnail, video } = groundworkVideo;
+    thumbnail = `uploads/${path.parse(thumbnail.split("uploads/")[1]).name}`;
+    deleteFromCloduinary(thumbnail);
+    video = `uploads/${path.parse(video.split("uploads/")[1]).name}`;
+    deleteFromCloduinary(video, "video");
 
     await GroundWorkVideoModel.findByIdAndDelete(groundworkVideo._id);
     return res.status(200).json({

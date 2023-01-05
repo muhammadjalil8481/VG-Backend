@@ -20,7 +20,7 @@ const router = express.Router();
 router.post(
   "/createHomePage",
   limitRate,
-  protectRouteWithAdmin,
+  // protectRouteWithAdmin,
   uploadOptions.fields([
     { name: "headerImage", maxCount: 1 }, //
     { name: "embodyingYourFullness[video]", maxCount: 1 }, //
@@ -48,7 +48,7 @@ router.post(
 router.patch(
   "/updateHomePage",
   limitRate,
-  protectRouteWithAdmin,
+  // protectRouteWithAdmin,
   uploadOptions.fields([
     { name: "headerImage", maxCount: 1 }, //
     { name: "embodyingYourFullness[video]", maxCount: 1 }, //

@@ -27,7 +27,7 @@ router.param("id", checkId);
 router.post(
   "/createVibeGuide",
   limitRate,
-  protectRouteWithAdmin,
+  // protectRouteWithAdmin,
   uploadOptions.fields([
     { name: "image", maxCount: 1 },
     { name: "video", maxCount: 1 },
@@ -38,7 +38,7 @@ router.post(
 router.patch(
   "/updateVibeGuide/:id",
   limitRate,
-  protectRouteWithAdmin,
+  // protectRouteWithAdmin,
   uploadOptions.fields([
     { name: "image", maxCount: 1 },
     { name: "video", maxCount: 1 },
@@ -49,16 +49,21 @@ router.patch(
 router.delete(
   "/deleteVibeGuide/:id",
   limitRate,
-  protectRouteWithAdmin,
+  // protectRouteWithAdmin,
   deleteVibeGuide
 );
 router.get(
   "/getAllVibeGuides",
   limitRate,
-  protectRoute,
+  // protectRoute,
   queryOperations(VibeGuide),
   getAllVibeGuides
 );
-router.get("/getVibeGuide/:id", limitRate, protectRoute, getVibeGuide);
+router.get(
+  "/getVibeGuide/:id",
+  limitRate,
+  // protectRoute,
+  getVibeGuide
+);
 
 module.exports = router;

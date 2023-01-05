@@ -22,7 +22,7 @@ exports.checkId = async (req, res, next, val) => {
     next(err);
   }
 };
-exports.createComment = async (req, res,next) => {
+exports.createComment = async (req, res, next) => {
   try {
     const { user, docModel, comment, postId } = req.body;
 
@@ -64,7 +64,7 @@ exports.createComment = async (req, res,next) => {
   }
 };
 
-exports.createComment2 = async (req, res,next) => {
+exports.createComment2 = async (req, res, next) => {
   try {
     const newComment = await Comment.create({ ...req.body });
     return res.status(201).json({
@@ -76,7 +76,7 @@ exports.createComment2 = async (req, res,next) => {
   }
 };
 
-exports.getAllComments = async (req, res,next) => {
+exports.getAllComments = async (req, res, next) => {
   try {
     const comments = await Comment.find().populate("postId", "title");
     return res.status(200).json({
@@ -89,7 +89,7 @@ exports.getAllComments = async (req, res,next) => {
   }
 };
 
-exports.getCommentByVideo = async (req, res,next) => {
+exports.getCommentByVideo = async (req, res, next) => {
   try {
     console.log(req.params.videoId);
     const comments = await Comment.find({
@@ -112,7 +112,7 @@ exports.getCommentByVideo = async (req, res,next) => {
   }
 };
 
-exports.replyComment = async (req, res,next) => {
+exports.replyComment = async (req, res, next) => {
   try {
     const checkCommentExist = req.comment;
 
@@ -139,7 +139,7 @@ exports.replyComment = async (req, res,next) => {
   }
 };
 
-exports.deleteComment = async (req, res,next) => {
+exports.deleteComment = async (req, res, next) => {
   try {
     const checkCommentExist = req.comment;
     await Comment.findByIdAndDelete(checkCommentExist._id);

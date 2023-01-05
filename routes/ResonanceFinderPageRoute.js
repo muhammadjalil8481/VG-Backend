@@ -20,7 +20,7 @@ const router = express.Router();
 router.post(
   "/createResonanceFinderPage",
   limitRate,
-  protectRouteWithAdmin,
+  // protectRouteWithAdmin,
   uploadOptions.fields([
     { name: "thumbnail", maxCount: 1 },
     { name: "video", maxCount: 1 }, //
@@ -30,7 +30,7 @@ router.post(
 router.patch(
   "/updateResonanceFinderPage",
   limitRate,
-  protectRouteWithAdmin,
+  // protectRouteWithAdmin,
   uploadOptions.fields([
     { name: "thumbnail", maxCount: 1 },
     { name: "video", maxCount: 1 }, //
@@ -40,7 +40,7 @@ router.patch(
 router.get(
   "/resonanceFinderPage",
   limitRate,
-  protectRoute,
+  // protectRoute,
   getResonanceFinderPage
 );
 

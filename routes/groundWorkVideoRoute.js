@@ -35,26 +35,26 @@ router.param("id", checkId);
 router.get(
   "/getAllGroundWorkVideos",
   limitRate,
-  protectRoute,
+  // protectRoute,
   queryOperations(GroundWorkVideoModel),
   getAllGroundWorkVideos
 );
 router.get(
   "/getGroundWorkVideo/:id",
   limitRate,
-  protectRoute,
+  // protectRoute,
   getGroundWorkVideo
 );
 
 router.post(
   "/createGroundWorkVideo",
   limitRate,
-  protectRouteWithAdmin,
+  // protectRouteWithAdmin,
   uploadOptions.fields([
     { name: "thumbnail", maxCount: 1 },
     { name: "video", maxCount: 1 },
   ]),
-  compressVideo,
+  // compressVideo,
   checkGroundWorkCategory,
   checkTags,
   checkTeachers,
@@ -64,12 +64,12 @@ router.post(
 router.patch(
   "/updateGroundWorkVideo/:id",
   limitRate,
-  protectRouteWithAdmin,
+  // protectRouteWithAdmin,
   uploadOptions.fields([
     { name: "thumbnail", maxCount: 1 },
     { name: "video", maxCount: 1 },
   ]),
-  compressVideo,
+  // compressVideo,
   checkGroundWorkCategory,
   checkTags,
   checkTeachers,
@@ -80,7 +80,7 @@ router.patch(
 router.delete(
   "/deleteGroundWorkVideo/:id",
   limitRate,
-  protectRouteWithAdmin,
+  // protectRouteWithAdmin,
   deleteGroundWorkVideo
 );
 module.exports = router;

@@ -3,6 +3,7 @@ const generateError = require("../helpers/generateError");
 const deleteFile = require("../helpers/deleteFile");
 const path = require("path");
 const deleteFromCloduinary = require("../helpers/deleteFromCloudinary");
+const getVideoDuration = require("../helpers/videoDuration");
 
 exports.createHomePage = async (req, res, next) => {
   try {
@@ -21,26 +22,37 @@ exports.createHomePage = async (req, res, next) => {
     } = req.body;
 
     const headerImage = req.files["headerImage"][0].path;
+    // const headerImage2 = req.files["headerImage2"][0].path;
+
     let embodyingYourFullnessVideo =
       req.files["embodyingYourFullness[video]"][0].path;
     let embodyingYourFullnessThumbnail =
       req.files["embodyingYourFullness[thumbnail]"][0].path;
+
     let comingHomeTogetherVideo =
       req.files["comingHomeTogether[video]"][0].path;
     let comingHomeTogetherThumbnail =
       req.files["comingHomeTogether[thumbnail]"][0].path;
+
     let hiw1Image = req.files["hiw1[image]"][0].path;
     let hiw2Image = req.files["hiw2[image]"][0].path;
     let hiw3Image = req.files["hiw3[image]"][0].path;
     let hiw4Image = req.files["hiw4[image]"][0].path;
+
     let sampleTools1Video = req.files["sampleTools1[video]"][0].path;
     let sampleTools1Thumbnail = req.files["sampleTools1[thumbnail]"][0].path;
+    let sampleTools1Icon = req.files["sampleTools1[icon]"][0].path;
+
     let sampleTools2Video = req.files["sampleTools2[video]"][0].path;
     let sampleTools2Thumbnail = req.files["sampleTools2[thumbnail]"][0].path;
+    let sampleTools2Icon = req.files["sampleTools2[icon]"][0].path;
+
     let creationStoryVideo = req.files["creationStory[video]"][0].path;
     let creationStoryThumbnail = req.files["creationStory[thumbnail]"][0].path;
-    let vibeBloomAppVideo = req.files["sampleTools1[thumbnail]"][0].path;
-    let vibeBloomAppThumbnail = req.files["sampleTools1[thumbnail]"][0].path;
+
+    let vibeBloomAppVideo = req.files["vibeBloomApp[video]"][0].path;
+    let vibeBloomAppThumbnail = req.files["vibeBloomApp[thumbnail]"][0].path;
+
     let teacherVideo = req.files["teacher[video]"][0].path;
     let teacherThumbnail = req.files["teacher[thumbnail]"][0].path;
 
@@ -56,54 +68,73 @@ exports.createHomePage = async (req, res, next) => {
     const homePage = await HomePage.create({
       ...req.body,
       headerImage,
+
       embodyingYourFullness: {
+        heading: embodyingYourFullness.heading,
         text: embodyingYourFullness.text,
+        buttonText: embodyingYourFullness.buttonText,
         video: embodyingYourFullnessVideo,
         thumbnail: embodyingYourFullnessThumbnail,
       },
       comingHomeTogether: {
+        heading: comingHomeTogether.heading,
         text: comingHomeTogether.text,
+        buttonText: comingHomeTogether.buttonText,
         video: comingHomeTogetherVideo,
         thumbnail: comingHomeTogetherThumbnail,
       },
       hiw1: {
+        heading: hiw1.heading,
         text: hiw1.text,
         image: hiw1Image,
       },
       hiw2: {
+        heading: hiw2.heading,
         text: hiw2.text,
         image: hiw2Image,
       },
       hiw3: {
+        heading: hiw3.heading,
         text: hiw3.text,
         image: hiw3Image,
       },
       hiw4: {
+        heading: hiw4.heading,
         text: hiw4.text,
         image: hiw4Image,
       },
       sampleTools1: {
+        heading: sampleTools1.heading,
+        icon: sampleTools1Icon,
         text: sampleTools1.text,
         video: sampleTools1Video,
         thumbnail: sampleTools1Thumbnail,
       },
       sampleTools2: {
+        heading: sampleTools2.heading,
+        icon: sampleTools2Icon,
         text: sampleTools2.text,
         video: sampleTools2Video,
         thumbnail: sampleTools2Thumbnail,
       },
       creationStory: {
+        heading: creationStory.heading,
         text: creationStory.text,
+        buttonText: creationStory.buttonText,
         video: creationStoryVideo,
         thumbnail: creationStoryThumbnail,
       },
       vibeBloomApp: {
+        heading: vibeBloomApp.heading,
         text: vibeBloomApp.text,
+        buttonText: vibeBloomApp.buttonText,
         video: vibeBloomAppVideo,
         thumbnail: vibeBloomAppThumbnail,
       },
       teacher: {
+        heading: teacher.heading,
         text: teacher.text,
+        buttonText: teacher.buttonText,
         video: teacherVideo,
         thumbnail: teacherThumbnail,
       },
@@ -465,9 +496,62 @@ exports.getHomePage = async (req, res, next) => {
     const homePage = await HomePage.find();
     if (!homePage)
       return generateError(req, res, 400, "failed to find homepage");
+    const embodyingYourFullnessVideoDuration = await getVideoDuration(
+      homePage[0]?.embodyingYourFullness?.video
+    );
+    const comingHomeTogetherVideoDuration = await getVideoDuration(
+      homePage[0]?.comingHomeTogether?.video
+    );
+    const sampleTools1VideoDuration = await getVideoDuration(
+      homePage[0]?.sampleTools1?.video
+    );
+    const sampleTools2VideoDuration = await getVideoDuration(
+      homePage[0]?.sampleTools2?.video
+    );
+    const creationStoryVideoDuration = await getVideoDuration(
+      homePage[0]?.creationStory?.video
+    );
+    const vibeBloomAppVideoDuration = await getVideoDuration(
+      homePage[0]?.vibeBloomApp?.video
+    );
+    const teacherVideoDuration = await getVideoDuration(
+      homePage[0]?.teacher?.video
+    );
+    console.log(embodyingYourFullnessVideoDuration);
     return res.status(200).json({
       status: "success",
-      homepage: homePage[0],
+      // data: homePage[0],
+      data: {
+        ...homePage[0]._doc,
+        embodyingYourFullness: {
+          ...homePage[0].embodyingYourFullness,
+          videoDuration: embodyingYourFullnessVideoDuration,
+        },
+        comingHomeTogether: {
+          ...homePage[0].comingHomeTogether,
+          videoDuration: comingHomeTogetherVideoDuration,
+        },
+        sampleTools1: {
+          ...homePage[0].sampleTools1,
+          videoDuration: sampleTools1VideoDuration,
+        },
+        sampleTools2: {
+          ...homePage[0].sampleTools2,
+          videoDuration: sampleTools2VideoDuration,
+        },
+        creationStory: {
+          ...homePage[0].creationStory,
+          videoDuration: creationStoryVideoDuration,
+        },
+        vibeBloomApp: {
+          ...homePage[0].vibeBloomApp,
+          videoDuration: vibeBloomAppVideoDuration,
+        },
+        teacher: {
+          ...homePage[0].teacher,
+          videoDuration: teacherVideoDuration,
+        },
+      },
     });
   } catch (err) {
     next(err);

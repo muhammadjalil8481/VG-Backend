@@ -31,13 +31,16 @@ exports.activateEmailSubscription = async (req, res, next) => {
 exports.getUser = async (req, res, next) => {
   try {
     const { id } = req.params;
-    const user = await User.findById(id).populate("paymentMethod");
+    const user = await User.findById(id)
+      .populate("paymentMethod")
+      .populate("avatar", "title croppedImage")
+      .populate("bloom", "title croppedImage");
     console.log("pass", user.password);
     if (!user)
       return generateError(req, res, 400, "No user found with this id");
     return res.status(200).json({
       status: "success",
-      user,
+      data: user,
     });
   } catch (err) {
     next(err);
@@ -68,8 +71,8 @@ exports.updateAvatar = async (req, res, next) => {
       );
     // 3 : Finally return the upated user
     return res.status(201).json({
-      status: "success",
-      updatedUser,
+      status: "ok",
+      user: updatedUser,
     });
   } catch (err) {
     next(err);
@@ -102,7 +105,7 @@ exports.updateBloom = async (req, res, next) => {
     // 3 : Finally return the upated user
     return res.status(201).json({
       status: "success",
-      updatedUser,
+      user: updatedUser,
     });
   } catch (err) {
     next(err);
@@ -130,7 +133,7 @@ exports.updateBloomPercentage = async (req, res, next) => {
       );
     return res.status(201).json({
       status: "success",
-      updatedUser,
+      user: updatedUser,
     });
   } catch (err) {
     next(err);

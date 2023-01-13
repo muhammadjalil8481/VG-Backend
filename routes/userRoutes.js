@@ -41,7 +41,12 @@ router.patch(
 );
 router.patch("/addToHistory/:user", limitRate, protectRoute, addToHistory);
 router.get("/getUserHistory/:id", limitRate, protectRoute, getUserHistory);
-router.get("/getUser/:id", limitRate, protectRoute, getUser);
+router.get(
+  "/getUser/:id",
+  limitRate,
+  // protectRoute,
+  getUser
+);
 router.patch("/toolsToTry/:userId", limitRate, protectRoute, toolsToTry);
 router.patch("/favorites/:userId", limitRate, protectRoute, favorites);
 // router.get("/getAllUsers", protectRoute, getAllUsers);

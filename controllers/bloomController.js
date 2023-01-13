@@ -8,14 +8,16 @@ exports.createBloom = async (req, res, next) => {
   try {
     const { title, description } = req.body;
 
-    if (!title || !description || !req.file)
+    if (!title || !description)
       return generateError(req, res, 400, "Please provide required info");
 
-    const filename = req.file;
+    let image = req.files["image"][0].path;
+    let croppedImage = req.files["croppedImage"][0].path;
 
     const bloom = await BloomModel.create({
       ...req.body,
-      image: filename?.path,
+      image,
+      croppedImage,
     });
 
     return res.status(201).json({
@@ -30,7 +32,7 @@ exports.createBloom = async (req, res, next) => {
 exports.updateBloom = async (req, res, next) => {
   try {
     const { id } = req.params;
-    let { image, description } = req.body;
+    let { image, croppedImage, description } = req.body;
     const bloom = await BloomModel.findById(id);
 
     if (!bloom)
@@ -40,19 +42,28 @@ exports.updateBloom = async (req, res, next) => {
         400,
         "No bloom was found with provided id"
       );
-    if (!image) image = bloom.image;
+    image = bloom.image;
+    croppedImage = bloom.croppedImage;
 
-    if (req.file) {
+    if (req.files["image"]) {
       image = `uploads/${path.parse(image.split("uploads/")[1]).name}`;
       deleteFromCloduinary(image);
-      image = req.file?.path;
+      image = req.files["image"][0]?.path;
+    }
+    if (req.files["croppedImage"]) {
+      croppedImage = `uploads/${
+        path.parse(croppedImage.split("uploads/")[1]).name
+      }`;
+      deleteFromCloduinary(croppedImage);
+      croppedImage = req.files["croppedImage"][0]?.path;
     }
 
     const updatedbloom = await BloomModel.findByIdAndUpdate(
       id,
       {
         image,
-        description: description || bloom.description,
+        croppedImage,
+        // description: description || bloom.description,
       },
       { new: true, runValidators: true }
     );
@@ -76,9 +87,13 @@ exports.deleteBloom = async (req, res, next) => {
         400,
         "No bloom was found with provided id"
       );
-    let { image } = bloom;
+    let { image, croppedImage } = bloom;
     image = `uploads/${path.parse(image.split("uploads/")[1]).name}`;
     deleteFromCloduinary(image);
+    croppedImage = `uploads/${
+      path.parse(croppedImage.split("uploads/")[1]).name
+    }`;
+    deleteFromCloduinary(croppedImage);
     await BloomModel.findByIdAndDelete(id);
     return res.status(200).json({
       status: "success",
@@ -115,7 +130,8 @@ exports.getAllBlooms = async (req, res, next) => {
     if (!blooms || blooms.length < 1)
       return generateError(req, res, 400, "failed to find blooms");
     return res.status(200).json({
-      status: "success",
+      status: "ok",
+      totalBlooms: blooms.length,
       blooms,
     });
   } catch (err) {

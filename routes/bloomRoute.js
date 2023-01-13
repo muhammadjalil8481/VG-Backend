@@ -23,7 +23,10 @@ router.post(
   "/createBloom",
   limitRate,
   // protectRouteWithAdmin,
-  uploadOptions.single("image"),
+  uploadOptions.fields([
+    { name: "image", maxCount: 1 },
+    { name: "croppedImage", maxCount: 1 },
+  ]),
   createBloom
 );
 router.delete(
@@ -36,7 +39,10 @@ router.patch(
   "/updateBloom/:id",
   limitRate,
   // protectRouteWithAdmin,
-  uploadOptions.single("image"),
+  uploadOptions.fields([
+    { name: "image", maxCount: 1 },
+    { name: "croppedImage", maxCount: 1 },
+  ]),
   updateBloom
 );
 router.get(

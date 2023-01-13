@@ -23,7 +23,10 @@ router.post(
   "/createAvatar",
   limitRate,
   // protectRouteWithAdmin,
-  uploadOptions.single("image"),
+  uploadOptions.fields([
+    { name: "image", maxCount: 1 },
+    { name: "croppedImage", maxCount: 1 },
+  ]),
   createAvatar
 );
 router.delete(
@@ -36,20 +39,13 @@ router.patch(
   "/updateAvatar/:id",
   limitRate,
   // protectRouteWithAdmin,
-  uploadOptions.single("image"),
+  uploadOptions.fields([
+    { name: "image", maxCount: 1 },
+    { name: "croppedImage", maxCount: 1 },
+  ]),
   updateAvatar
 );
-router.get(
-  "/getAllAvatars",
-  limitRate,
-  // protectRoute,
-  getAllAvatars
-);
-router.get(
-  "/getAvatar/:id",
-  limitRate,
-  // protectRoute,
-  getAvatar
-);
+router.get("/getAllAvatars", limitRate, protectRoute, getAllAvatars);
+router.get("/getAvatar/:id", limitRate, protectRoute, getAvatar);
 
 module.exports = router;

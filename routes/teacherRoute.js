@@ -31,11 +31,11 @@ router.post(
   limitRate,
   // protectRouteWithAdmin,
   uploadOptions.fields([
-    { name: "image", maxCount: 1 },
-    { name: "video", maxCount: 1 },
     { name: "profileImage", maxCount: 1 },
+    { name: "thumbnail", maxCount: 1 },
+    { name: "video", maxCount: 1 },
   ]),
-  checkTags,
+  // checkTags,
   createTeacher
 );
 
@@ -44,11 +44,11 @@ router.patch(
   limitRate,
   // protectRouteWithAdmin,
   uploadOptions.fields([
-    { name: "image", maxCount: 1 },
-    { name: "video", maxCount: 1 },
     { name: "profileImage", maxCount: 1 },
+    { name: "thumbnail", maxCount: 1 },
+    { name: "video", maxCount: 1 },
   ]),
-  checkTags,
+  // checkTags,
   updateTeacher
 );
 

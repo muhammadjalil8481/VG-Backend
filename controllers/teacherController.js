@@ -4,6 +4,7 @@ const deleteFile = require("../helpers/deleteFile");
 const ToolVideoModel = require("../models/ToolVideoModel");
 const GWVideoModel = require("../models/GroundWorkVideoModel");
 const deleteFromCloduinary = require("../helpers/deleteFromCloudinary");
+const getVideoDuration = require("../helpers/videoDuration");
 const path = require("path");
 
 exports.checkId = async (req, res, next, val) => {
@@ -27,25 +28,25 @@ exports.checkId = async (req, res, next, val) => {
 exports.createTeacher = async (req, res, next) => {
   try {
     // 1 : Get the data from body
-    let { name, description, reels, tags } = req.body;
-    if (!name || !description || !reels || !tags)
+    let { name, description, reels } = req.body;
+    if (!name || !description || !reels)
       return generateError(req, res, 400, "Please provide required info");
 
     // 2 : Validate teacher name
-    const nameRegex = /^[A-Za-z]+$/;
-    if (!nameRegex.test(name)) {
-      return generateError(req, res, 400, "Please provide a valid name");
-    }
+    // const nameRegex = /^[A-Za-z]+$/;
+    // if (!nameRegex.test(name)) {
+    //   return generateError(req, res, 400, "Please provide a valid name");
+    // }
 
     // 2 : Get filename of image and video and basepath
-    const imagefile = req.files["image"][0].path;
+    const thumbnailfile = req.files["thumbnail"][0].path;
     const videofile = req.files["video"][0].path;
     const pifile = req.files["profileImage"][0].path;
 
     // 3 : Create the teacher
     const teacher = await Teacher.create({
       ...req.body,
-      image: imagefile,
+      thumbnail: thumbnailfile,
       video: videofile,
       profileImage: pifile,
     });
@@ -139,27 +140,28 @@ exports.getAllTeachers = async (req, res, next) => {
 
     const allTeachers = await Promise.all(
       teachers.map(async (teach) => {
-        console.log(teach);
-        // console.log("id", teach);
-        const relatedToolVideos = await ToolVideoModel.find({
-          teachers: { $in: teach._id },
-        });
-        const relatedGWVideos = await GWVideoModel.find({
-          teachers: { $in: teach._id },
-        });
-        let combineRC = [...relatedGWVideos, ...relatedToolVideos];
-        for (let i = combineRC.length - 1; i > 0; i--) {
-          const j = Math.floor(Math.random() * (i + 1));
-          [combineRC[i], combineRC[j]] = [combineRC[j], combineRC[i]];
-        }
-        return { ...teach?._doc, relatedContent: combineRC };
+        const videoDuration = await getVideoDuration(teach?.video);
+        return { ...teach._doc, videoDuration: videoDuration };
+        //     let relatedToolVideos = await ToolVideoModel.find({
+        //       teachers: { $in: teach._id },
+        //     });
+        //     let relatedGWVideos = await GWVideoModel.find({
+        //       teachers: { $in: teach._id },
+        //     });
+        //     console.log(relatedGWVideos);
+        //     let combineRC = [...relatedGWVideos, ...relatedToolVideos];
+        //     for (let i = combineRC.length - 1; i > 0; i--) {
+        //       const j = Math.floor(Math.random() * (i + 1));
+        //       [combineRC[i], combineRC[j]] = [combineRC[j], combineRC[i]];
+        //     }
+        //     return { ...teach?._doc, relatedContent: combineRC };
       })
     );
-
+    console.log(allTeachers);
     return res.status(200).json({
       status: "success",
       totalTeachers: allTeachers.length,
-      allTeachers,
+      data: allTeachers,
     });
   } catch (err) {
     next(err);

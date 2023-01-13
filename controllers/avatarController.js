@@ -11,11 +11,13 @@ exports.createAvatar = async (req, res, next) => {
     if (!title || !description)
       return generateError(req, res, 400, "Please provide required info");
 
-    const filename = req.file;
+    let image = req.files["image"][0].path;
+    let croppedImage = req.files["croppedImage"][0].path;
     // const basePath = `${req.protocol}://${req.get("host")}/uploads/`;
     const avatar = await AvatarModel.create({
       ...req.body,
-      image: filename?.path,
+      image,
+      croppedImage,
     });
 
     return res.status(201).json({
@@ -30,7 +32,7 @@ exports.createAvatar = async (req, res, next) => {
 exports.updateAvatar = async (req, res, next) => {
   try {
     const { id } = req.params;
-    let { image, description } = req.body;
+    let { image, croppedImage, description } = req.body;
     const avatar = await AvatarModel.findById(id);
 
     if (!avatar)
@@ -40,20 +42,29 @@ exports.updateAvatar = async (req, res, next) => {
         400,
         "No avatar was found with provided id"
       );
-      
-    if (!image) image = avatar.image;
 
-    if (req.file) {
+    image = avatar.image;
+    croppedImage = avatar.croppedImage;
+
+    if (req.files["image"]) {
       image = `uploads/${path.parse(image.split("uploads/")[1]).name}`;
       deleteFromCloduinary(image);
-      image = req.file?.path;
+      image = req.files["image"][0]?.path;
+    }
+    if (req.files["croppedImage"]) {
+      croppedImage = `uploads/${
+        path.parse(croppedImage.split("uploads/")[1]).name
+      }`;
+      deleteFromCloduinary(croppedImage);
+      croppedImage = req.files["croppedImage"][0]?.path;
     }
 
     const updatedAvatar = await AvatarModel.findByIdAndUpdate(
       id,
       {
         image,
-        description: description || avatar.description,
+        croppedImage,
+        // description: description || avatar.description,
       },
       { new: true, runValidators: true }
     );
@@ -77,9 +88,13 @@ exports.deleteAvatar = async (req, res, next) => {
         400,
         "No avatar was found with provided id"
       );
-    let { image } = avatar;
+    let { image, croppedImage } = avatar;
     image = `uploads/${path.parse(image.split("uploads/")[1]).name}`;
     deleteFromCloduinary(image);
+    croppedImage = `uploads/${
+      path.parse(croppedImage.split("uploads/")[1]).name
+    }`;
+    deleteFromCloduinary(croppedImage);
     await AvatarModel.findByIdAndDelete(id);
     return res.status(200).json({
       status: "success",
@@ -116,7 +131,8 @@ exports.getAllAvatars = async (req, res, next) => {
     if (!avatars || avatars.length < 1)
       return generateError(req, res, 400, "failed to find avatars");
     return res.status(200).json({
-      status: "success",
+      status: "ok",
+      totalAvatars: avatars.length,
       avatars,
     });
   } catch (err) {

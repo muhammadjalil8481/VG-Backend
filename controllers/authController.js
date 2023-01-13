@@ -151,7 +151,7 @@ exports.verifyUser = async (req, res, next) => {
     // if not , then return an error
     const { otp, email } = req.body;
     if (!otp || !email)
-      return generateError(req, res, 400, "Please provide valid email and otp");
+      return generateError(req, res, 400, "Please provide valid otp");
 
     // 2 : find a user with provided email
     // If no user is found then return an error
@@ -343,22 +343,25 @@ exports.loginUser = async (req, res, next) => {
       !user.paymentMethod ||
       user?.paymentMethod?.subsciptionStatus === "inactive"
     )
-      return generateError(req, res, 400, "user has not completed payment");
-
-    // 4 : Check if password is correct
-    const passwordMatch = await bcrypt.compare(password, user.password);
-    if (!passwordMatch)
       return generateError(
         req,
         res,
         400,
-        "the password provided does not match with the user password"
+        "Please complete payment to continue",
+        "paymentIncomplete",
+        user
       );
+
+    // 4 : Check if password is correct
+    const passwordMatch = await bcrypt.compare(password, user.password);
+    if (!passwordMatch)
+      return generateError(req, res, 400, "Please provide correct password");
     // 5 : Create JWT Token
     // const secret = crypto.randomBytes(32).toString("base64");
     const token = jwt.sign({ id: user.id }, process.env.JWT_SECRET, {
       expiresIn: process.env.JWT_EXP,
     });
+    console.log("token generated", token);
     if (!token)
       return generateError(req, res, 401, "Failed to create JWT Token");
 

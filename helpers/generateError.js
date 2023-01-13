@@ -3,9 +3,19 @@ const generateError = (
   res,
   statusNum = 400,
   message = "Error Message",
-  specialMessage = ""
+  specialMessage = "",
+  specialData = {}
 ) => {
-  if (specialMessage) {
+  if (specialData && specialMessage) {
+    console.log("special message and special data");
+    return res.status(statusNum).json({
+      status: "failed",
+      message: message,
+      specialMessage,
+      specialData,
+    });
+  } else if (specialMessage) {
+    console.log("special message ");
     return res.status(statusNum).json({
       status: "failed",
       message: message,

@@ -35,7 +35,7 @@ cloudinary.config({
 const cloudStorage = new CloudinaryStorage({
   cloudinary: cloudinary,
   params: async (req, file) => {
-    console.log("file from cloud storage", file);
+    // console.log("file from cloud storage", file);
     if (file?.mimetype === "video/mp4")
       return {
         // public_id: file.filename,
@@ -50,7 +50,7 @@ const cloudStorage = new CloudinaryStorage({
     return {
       public_id: file.filename,
       // public_id : 'aaa',
-      allowed_formats: ["jpg", "png", "svg"],
+      // allowed_formats: ["jpg", "png", "svg"],
       resource_type: "image",
       folder: "uploads",
       filename: `${file.originalname}`,

@@ -21,9 +21,9 @@ exports.subscribeEmail = async (req, res, next) => {
       });
       sendSubscriptionEmail(email);
     } else {
-      emails = [...extra[0].subscriptionEmails, email];
       if (extra[0].subscriptionEmails.includes(email))
         return generateError(req, res, 400, "Email already subscribed");
+      emails = [...extra[0].subscriptionEmails, email];
 
       extra = await Extras.findByIdAndUpdate(
         extra[0]._id,
@@ -36,7 +36,7 @@ exports.subscribeEmail = async (req, res, next) => {
     }
     return res.status(200).json({
       status: "success",
-      extra,
+      data: extra,
     });
   } catch (err) {
     next(err);

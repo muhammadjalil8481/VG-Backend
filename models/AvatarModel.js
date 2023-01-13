@@ -6,6 +6,10 @@ const avatarSchema = new mongoose.Schema(
       type: String,
       required: true,
     },
+    croppedImage: {
+      type: String,
+      required: true,
+    },
     title: {
       type: String,
       required: true,

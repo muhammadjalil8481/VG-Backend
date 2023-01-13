@@ -10,7 +10,7 @@ const teacherSchema = new mongoose.Schema(
       type: String,
       required: true,
     },
-    image: {
+    thumbnail: {
       type: String,
       required: true,
     },
@@ -22,12 +22,12 @@ const teacherSchema = new mongoose.Schema(
       type: String,
       required: true,
     },
-    tags: [
-      {
-        type: mongoose.Schema.Types.ObjectId,
-        ref: "Tag",
-      },
-    ],
+    // tags: [
+    //   {
+    //     type: mongoose.Schema.Types.ObjectId,
+    //     ref: "Tag",
+    //   },
+    // ],
     reels: [
       {
         linkName: {

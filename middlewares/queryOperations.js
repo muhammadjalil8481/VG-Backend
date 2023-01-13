@@ -28,6 +28,10 @@ exports.queryOperations = (model) => {
         const tag = req.query.tag;
         result = model.find({ tags: { $in: [tag] } });
       }
+      if (req.query.teacher) {
+        const teacher = req.query.teacher;
+        result = model.find({ teachers: { $in: [teacher] } });
+      }
       if (req.query.sort) {
         const sortBy = req.query?.sort?.split(",").join(" ");
         // console.log("sort", req.query, sortBy);

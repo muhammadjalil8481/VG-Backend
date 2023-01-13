@@ -5,7 +5,9 @@ const User = require("../models/UserModel");
 exports.protectRoute = async (req, res, next) => {
   try {
     // 1 : Check if token exists
+
     const { authorization } = req.headers;
+    console.log(authorization);
     if (!authorization || authorization.startsWith("Bearer") === false)
       return generateError(
         req,
@@ -16,7 +18,6 @@ exports.protectRoute = async (req, res, next) => {
 
     // 2 : Get token from string
     const token = authorization.split(" ")[1];
-    console.log("token", token);
 
     // 3 ; Validate token
     const decoded = jwt.verify(token, process.env.JWT_SECRET);

@@ -7,13 +7,15 @@ const freshBloomsSchema = new mongoose.Schema(
       required: true,
       unique: true,
     },
-    type: {
-      type: String,
-      enum: ["blu-lotus", "divine-ross", "mushrooms", "chuchuhuas"],
-      required: [
-        true,
-        "Can only accept one of these (blu-lotus or divine-ross or mushrooms or chuchuhuas)",
-      ],
+    bloom: {
+      // type: String,
+      // enum: ["blu-lotus", "divine-ross", "mushrooms", "chuchuhuas"],
+      // required: [
+      //   true,
+      //   "Can only accept one of these (blu-lotus or divine-ross or mushrooms or chuchuhuas)",
+      // ],
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "Bloom",
     },
     description: {
       type: String,

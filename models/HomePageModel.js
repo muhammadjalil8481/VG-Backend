@@ -6,12 +6,36 @@ const homepageSchema = new mongoose.Schema(
       type: String,
       required: true,
     },
+    headerImage2: {
+      type: String,
+      // required: true,
+    },
+    headerImage3: {
+      type: String,
+      // required: true,
+    },
     mainQuotation: {
       type: String,
       required: true,
     },
+    mainQuotation2: {
+      type: String,
+      // required: true,
+    },
+    mainQuotation3: {
+      type: String,
+      // required: true,
+    },
     embodyingYourFullness: {
+      heading: {
+        type: String,
+        required: true,
+      },
       text: {
+        type: String,
+        required: true,
+      },
+      buttonText: {
         type: String,
         required: true,
       },
@@ -25,7 +49,15 @@ const homepageSchema = new mongoose.Schema(
       },
     },
     comingHomeTogether: {
+      heading: {
+        type: String,
+        required: true,
+      },
       text: {
+        type: String,
+        required: true,
+      },
+      buttonText: {
         type: String,
         required: true,
       },
@@ -39,6 +71,10 @@ const homepageSchema = new mongoose.Schema(
       },
     },
     hiw1: {
+      heading: {
+        type: String,
+        required: true,
+      },
       text: {
         type: String,
         required: true,
@@ -49,6 +85,10 @@ const homepageSchema = new mongoose.Schema(
       },
     },
     hiw2: {
+      heading: {
+        type: String,
+        required: true,
+      },
       text: {
         type: String,
         required: true,
@@ -59,6 +99,10 @@ const homepageSchema = new mongoose.Schema(
       },
     },
     hiw3: {
+      heading: {
+        type: String,
+        required: true,
+      },
       text: {
         type: String,
         required: true,
@@ -69,6 +113,10 @@ const homepageSchema = new mongoose.Schema(
       },
     },
     hiw4: {
+      heading: {
+        type: String,
+        required: true,
+      },
       text: {
         type: String,
         required: true,
@@ -118,7 +166,19 @@ const homepageSchema = new mongoose.Schema(
         required: true,
       },
     },
+    sampleToolsHeading: {
+      type: String,
+      required: true,
+    },
     sampleTools1: {
+      heading: {
+        type: String,
+        required: true,
+      },
+      icon: {
+        type: String,
+        required: true,
+      },
       text: {
         type: String,
         required: true,
@@ -134,6 +194,14 @@ const homepageSchema = new mongoose.Schema(
       },
     },
     sampleTools2: {
+      heading: {
+        type: String,
+        required: true,
+      },
+      icon: {
+        type: String,
+        required: true,
+      },
       text: {
         type: String,
         required: true,
@@ -142,18 +210,29 @@ const homepageSchema = new mongoose.Schema(
         type: String,
         required: true,
       },
-
       thumbnail: {
         type: String,
         required: true,
       },
     },
+    moreVGHeading: {
+      type: String,
+      required: true,
+    },
     creationStory: {
+      heading: {
+        type: String,
+        required: true,
+      },
       text: {
         type: String,
         required: true,
       },
       video: {
+        type: String,
+        required: true,
+      },
+      buttonText: {
         type: String,
         required: true,
       },
@@ -164,6 +243,10 @@ const homepageSchema = new mongoose.Schema(
       },
     },
     vibeBloomApp: {
+      heading: {
+        type: String,
+        required: true,
+      },
       text: {
         type: String,
         required: true,
@@ -172,13 +255,20 @@ const homepageSchema = new mongoose.Schema(
         type: String,
         required: true,
       },
-
+      buttonText: {
+        type: String,
+        required: true,
+      },
       thumbnail: {
         type: String,
         required: true,
       },
     },
     teacher: {
+      heading: {
+        type: String,
+        required: true,
+      },
       text: {
         type: String,
         required: true,
@@ -187,7 +277,10 @@ const homepageSchema = new mongoose.Schema(
         type: String,
         required: true,
       },
-
+      buttonText: {
+        type: String,
+        required: true,
+      },
       thumbnail: {
         type: String,
         required: true,

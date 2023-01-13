@@ -10,6 +10,7 @@ const {
   protectRouteWithAdmin,
   protectRoute,
 } = require("../middlewares/protectRoute");
+const checkBloom = require("../middlewares/checkBloom");
 
 // Model
 const FreshBloomsModel = require("../models/FreshBloomsModel");
@@ -37,6 +38,7 @@ router.post(
     { name: "thumbnail", maxCount: 1 },
     { name: "video", maxCount: 1 },
   ]),
+  checkBloom,
   checkTags,
   createFreshBloomVideo
 );

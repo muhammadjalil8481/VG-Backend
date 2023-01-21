@@ -46,7 +46,7 @@ router.get("/getToolCategory/:id", limitRate, protectRoute, getToolCategory);
 router.get(
   "/getAllToolCategories",
   limitRate,
-  protectRoute,
+  // protectRoute,
   getAllToolCategories
 );
 module.exports = router;

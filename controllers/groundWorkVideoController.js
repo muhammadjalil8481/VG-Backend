@@ -1,4 +1,5 @@
 const GroundWorkVideoModel = require("../models/GroundWorkVideoModel");
+const CommentModel = require("../models/commentModel");
 const generateError = require("../helpers/generateError");
 const deleteFile = require("../helpers/deleteFile");
 const path = require("path");
@@ -30,17 +31,11 @@ exports.getAllGroundWorkVideos = async (req, res, next) => {
     const gwVideos = await result
       .populate("tags", "name")
       .populate("category", "title icon");
-    const data = await Promise.all(
-      gwVideos.map(async (vid) => {
-        const duration = await getVideoDuration(vid.video);
-        return { ...vid._doc, duration };
-      })
-    );
+
     return res.status(200).json({
-      status: "success",
+      status: "ok",
       numOfVideos: gwVideos.length,
-      // gwVideos,
-      data,
+      data: gwVideos,
     });
   } catch (err) {
     next(err);
@@ -62,11 +57,23 @@ exports.getGroundWorkVideo = async (req, res, next) => {
         400,
         "no groundwork video with this id exist"
       );
-    const duration = await getVideoDuration(gwVideo.video);
-
-    return res.status(400).json({
+    const comments = await CommentModel.find({
+      postId: id,
+      isReply: false,
+    })
+      .populate("user", "avatar firstName lastName")
+      .populate({
+        path: "user",
+        select: "avatar firstName lastName",
+        populate: {
+          path: "avatar",
+          select: "croppedImage",
+        },
+      })
+      .sort("-createdAt");
+    return res.status(200).json({
       status: "success",
-      data: { ...gwVideo._doc, duration },
+      data: { ...gwVideo._doc, comments },
     });
   } catch (err) {
     next(err);

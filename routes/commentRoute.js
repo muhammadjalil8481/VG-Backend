@@ -20,15 +20,30 @@ const router = express.Router();
 
 // Routes
 router.param("id", checkId);
-router.post("/createComment", limitRate, protectRoute, createComment);
-router.get("/getAllComments", limitRate, protectRoute, getAllComments);
+router.post(
+  "/createComment",
+  limitRate,
+  //  protectRoute,
+  createComment
+);
+router.get(
+  "/getAllComments",
+  limitRate,
+  // protectRoute,
+  getAllComments
+);
 router.get(
   "/getCommentByVideo/:videoId",
   limitRate,
   protectRoute,
   getCommentByVideo
 );
-router.patch("/replyComment/:id", limitRate, protectRoute, replyComment);
+router.patch(
+  "/replyComment/:id",
+  limitRate,
+  // protectRoute,
+  replyComment
+);
 router.delete("/deleteComment/:id", limitRate, protectRoute, deleteComment);
 
 module.exports = router;

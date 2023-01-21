@@ -1,4 +1,5 @@
 const mongoose = require("mongoose");
+const getVideoDuration = require("../helpers/videoDuration");
 
 const AboutUsVideoSchema = new mongoose.Schema(
   {
@@ -19,9 +20,18 @@ const AboutUsVideoSchema = new mongoose.Schema(
       type: String,
       required: true,
     },
+    videoDuration: {
+      type: String,
+    },
   },
   { timestamps: true }
 );
+
+AboutUsVideoSchema.pre("save", async function (next) {
+  const videoDuration = await getVideoDuration(this.video);
+  this.videoDuration = videoDuration;
+  next();
+});
 
 const AboutUsVideo = mongoose.model("AboutUsVideo", AboutUsVideoSchema);
 

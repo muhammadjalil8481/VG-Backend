@@ -1,4 +1,5 @@
 const ToolCategoryModel = require("../models/ToolCategoryModel");
+const ToolVideoModel = require("../models/ToolVideoModel");
 const generateError = require("../helpers/generateError");
 const deleteFile = require("../helpers/deleteFile");
 const deleteFromCloduinary = require("../helpers/deleteFromCloudinary");
@@ -96,9 +97,17 @@ exports.deleteToolCategory = async (req, res, next) => {
 
 exports.getAllToolCategories = async (req, res, next) => {
   try {
-    const toolCategories = await ToolCategoryModel.find();
+    let toolCategories = await ToolCategoryModel.find();
     if (!toolCategories || toolCategories.length < 1)
       return generateError(req, res, 400, "No tool categories were found");
+    toolCategories = await Promise.all(
+      toolCategories.map(async (cat) => {
+        const data = await ToolVideoModel.find({
+          category: cat._id,
+        }).populate("tags", "name");
+        return { ...cat._doc, videos: data };
+      })
+    );
     return res.status(200).json({
       status: "success",
       numOfCategories: toolCategories.length,

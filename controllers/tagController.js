@@ -109,7 +109,7 @@ exports.getAllTags = async (req, res, next) => {
 
 exports.getTag = async (req, res, next) => {
   try {
-    const tag = await Tag.findById(req?.params?.id);
+    const tag = await Tag.findById(req?.params?.id).populate("teachers");
     if (!tag)
       return generateError(req, res, 400, "No Tag was found with provided id ");
     return res.status(200).json({

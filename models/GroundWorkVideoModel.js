@@ -1,4 +1,5 @@
 const mongoose = require("mongoose");
+const getVideoDuration = require("../helpers/videoDuration");
 
 const groundworkVideoSchema = new mongoose.Schema(
   {
@@ -24,7 +25,7 @@ const groundworkVideoSchema = new mongoose.Schema(
       type: String,
       required: true,
     },
-
+    videoDuration: { type: String },
     tags: [
       {
         type: mongoose.Schema.Types.ObjectId,
@@ -63,6 +64,12 @@ const groundworkVideoSchema = new mongoose.Schema(
   },
   { timestamps: true }
 );
+
+groundworkVideoSchema.pre("save", async function (next) {
+  const videoDuration = await getVideoDuration(this.video);
+  this.videoDuration = videoDuration;
+  next();
+});
 
 const groundWorkVideo = mongoose.model(
   "groundWorkVideo",

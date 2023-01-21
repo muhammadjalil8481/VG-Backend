@@ -118,10 +118,8 @@ exports.replyComment = async (req, res, next) => {
 
     const { user, docModel, comment, postId } = req.body;
     const reply = await Comment.create({
-      user,
-      docModel,
-      comment,
-      postId,
+      ...req.body,
+      isReply: true,
     });
     const attachReply = await Comment.findByIdAndUpdate(
       checkCommentExist._id,

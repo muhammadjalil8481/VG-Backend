@@ -1,4 +1,5 @@
 const mongoose = require("mongoose");
+const getVideoDuration = require("../helpers/videoDuration");
 
 const homepageSchema = new mongoose.Schema(
   {
@@ -43,6 +44,9 @@ const homepageSchema = new mongoose.Schema(
         type: String,
         required: true,
       },
+      videoDuration: {
+        type: String,
+      },
       thumbnail: {
         type: String,
         required: true,
@@ -64,6 +68,9 @@ const homepageSchema = new mongoose.Schema(
       video: {
         type: String,
         required: true,
+      },
+      videoDuration: {
+        type: String,
       },
       thumbnail: {
         type: String,
@@ -187,7 +194,9 @@ const homepageSchema = new mongoose.Schema(
         type: String,
         required: true,
       },
-
+      videoDuration: {
+        type: String,
+      },
       thumbnail: {
         type: String,
         required: true,
@@ -209,6 +218,9 @@ const homepageSchema = new mongoose.Schema(
       video: {
         type: String,
         required: true,
+      },
+      videoDuration: {
+        type: String,
       },
       thumbnail: {
         type: String,
@@ -232,11 +244,13 @@ const homepageSchema = new mongoose.Schema(
         type: String,
         required: true,
       },
+      videoDuration: {
+        type: String,
+      },
       buttonText: {
         type: String,
         required: true,
       },
-
       thumbnail: {
         type: String,
         required: true,
@@ -254,6 +268,9 @@ const homepageSchema = new mongoose.Schema(
       video: {
         type: String,
         required: true,
+      },
+      videoDuration: {
+        type: String,
       },
       buttonText: {
         type: String,
@@ -277,6 +294,9 @@ const homepageSchema = new mongoose.Schema(
         type: String,
         required: true,
       },
+      videoDuration: {
+        type: String,
+      },
       buttonText: {
         type: String,
         required: true,
@@ -289,6 +309,30 @@ const homepageSchema = new mongoose.Schema(
   },
   { timestamps: true }
 );
+
+homepageSchema.pre("save", async function (next) {
+  const embodyingYourFullnessVD = await getVideoDuration(
+    this.embodyingYourFullness.video
+  );
+  const comingHomeTogetherVD = await getVideoDuration(
+    this.comingHomeTogether.video
+  );
+  const sampleTools1VD = await getVideoDuration(this.sampleTools1.video);
+  const sampleTools2VD = await getVideoDuration(this.sampleTools2.video);
+  const creationStoryVD = await getVideoDuration(this.creationStory.video);
+  const vibeBloomAppVD = await getVideoDuration(this.vibeBloomApp.video);
+  const teacherVD = await getVideoDuration(this.teacher.video);
+
+  this.embodyingYourFullness.videoDuration = embodyingYourFullnessVD;
+  this.comingHomeTogether.videoDuration = comingHomeTogetherVD;
+  this.sampleTools1.videoDuration = sampleTools1VD;
+  this.sampleTools2.videoDuration = sampleTools2VD;
+  this.creationStory.videoDuration = creationStoryVD;
+  this.vibeBloomApp.videoDuration = vibeBloomAppVD;
+  this.teacher.videoDuration = teacherVD;
+
+  next();
+});
 
 const HomePage = mongoose.model("HomePage", homepageSchema);
 module.exports = HomePage;

@@ -1,4 +1,5 @@
 const mongoose = require("mongoose");
+const getVideoDuration = require("../helpers/videoDuration");
 
 const toolVideoSchema = new mongoose.Schema(
   {
@@ -25,7 +26,9 @@ const toolVideoSchema = new mongoose.Schema(
       type: String,
       required: true,
     },
- 
+    videoDuration: {
+      type: String,
+    },
     isFeatured: {
       type: Boolean,
       default: false,
@@ -67,6 +70,12 @@ const toolVideoSchema = new mongoose.Schema(
   },
   { timestamps: true }
 );
+
+toolVideoSchema.pre("save", async function (next) {
+  const videoDuration = await getVideoDuration(this.video);
+  this.videoDuration = videoDuration;
+  next();
+});
 
 const ToolVideo = mongoose.model("ToolVideo", toolVideoSchema);
 

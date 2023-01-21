@@ -31,6 +31,10 @@ const commentSchema = new mongoose.Schema(
         type: mongoose.Schema.Types.ObjectId,
       },
     ],
+    isReply: {
+      type: Boolean,
+      default: false,
+    },
   },
   { timestamps: true }
 );

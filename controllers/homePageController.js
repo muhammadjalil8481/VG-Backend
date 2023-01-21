@@ -496,62 +496,10 @@ exports.getHomePage = async (req, res, next) => {
     const homePage = await HomePage.find();
     if (!homePage)
       return generateError(req, res, 400, "failed to find homepage");
-    const embodyingYourFullnessVideoDuration = await getVideoDuration(
-      homePage[0]?.embodyingYourFullness?.video
-    );
-    const comingHomeTogetherVideoDuration = await getVideoDuration(
-      homePage[0]?.comingHomeTogether?.video
-    );
-    const sampleTools1VideoDuration = await getVideoDuration(
-      homePage[0]?.sampleTools1?.video
-    );
-    const sampleTools2VideoDuration = await getVideoDuration(
-      homePage[0]?.sampleTools2?.video
-    );
-    const creationStoryVideoDuration = await getVideoDuration(
-      homePage[0]?.creationStory?.video
-    );
-    const vibeBloomAppVideoDuration = await getVideoDuration(
-      homePage[0]?.vibeBloomApp?.video
-    );
-    const teacherVideoDuration = await getVideoDuration(
-      homePage[0]?.teacher?.video
-    );
-    console.log(embodyingYourFullnessVideoDuration);
+
     return res.status(200).json({
       status: "success",
-      // data: homePage[0],
-      data: {
-        ...homePage[0]._doc,
-        embodyingYourFullness: {
-          ...homePage[0].embodyingYourFullness,
-          videoDuration: embodyingYourFullnessVideoDuration,
-        },
-        comingHomeTogether: {
-          ...homePage[0].comingHomeTogether,
-          videoDuration: comingHomeTogetherVideoDuration,
-        },
-        sampleTools1: {
-          ...homePage[0].sampleTools1,
-          videoDuration: sampleTools1VideoDuration,
-        },
-        sampleTools2: {
-          ...homePage[0].sampleTools2,
-          videoDuration: sampleTools2VideoDuration,
-        },
-        creationStory: {
-          ...homePage[0].creationStory,
-          videoDuration: creationStoryVideoDuration,
-        },
-        vibeBloomApp: {
-          ...homePage[0].vibeBloomApp,
-          videoDuration: vibeBloomAppVideoDuration,
-        },
-        teacher: {
-          ...homePage[0].teacher,
-          videoDuration: teacherVideoDuration,
-        },
-      },
+      data: homePage[0],
     });
   } catch (err) {
     next(err);

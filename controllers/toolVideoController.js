@@ -12,17 +12,10 @@ exports.getAllToolVideos = async (req, res, next) => {
       .populate("tags", "name")
       .populate("category", "title icon");
 
-    const data = await Promise.all(
-      toolVideos.map(async (vid) => {
-        const duration = await getVideoDuration(vid.video);
-        return { ...vid._doc, duration };
-      })
-    );
     return res.status(200).json({
       status: "ok",
       numOfVideos: toolVideos.length,
-      // toolVideos,
-      data,
+      data: toolVideos,
     });
   } catch (err) {
     next(err);
@@ -38,11 +31,9 @@ exports.getToolVideo = async (req, res, next) => {
       .populate("relatedContent", "title category thumbnail video tags");
     if (!toolVideo)
       return generateError(req, res, 400, "no tool video with this id exist");
-    const duration = await getVideoDuration(toolVideo.video);
     return res.status(200).json({
       status: "success",
-      // toolVideo,
-      data: { ...toolVideo._doc, duration },
+      data: { ...toolVideo._doc },
     });
   } catch (err) {
     next(err);

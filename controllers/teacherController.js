@@ -140,24 +140,26 @@ exports.getAllTeachers = async (req, res, next) => {
 
     const allTeachers = await Promise.all(
       teachers.map(async (teach) => {
-        const videoDuration = await getVideoDuration(teach?.video);
-        return { ...teach._doc, videoDuration: videoDuration };
-        //     let relatedToolVideos = await ToolVideoModel.find({
-        //       teachers: { $in: teach._id },
-        //     });
-        //     let relatedGWVideos = await GWVideoModel.find({
-        //       teachers: { $in: teach._id },
-        //     });
-        //     console.log(relatedGWVideos);
-        //     let combineRC = [...relatedGWVideos, ...relatedToolVideos];
-        //     for (let i = combineRC.length - 1; i > 0; i--) {
-        //       const j = Math.floor(Math.random() * (i + 1));
-        //       [combineRC[i], combineRC[j]] = [combineRC[j], combineRC[i]];
-        //     }
-        //     return { ...teach?._doc, relatedContent: combineRC };
+        let relatedToolVideos = await ToolVideoModel.find({
+          teachers: { $in: teach._id },
+        }).populate("tags", "name");
+        let relatedGWVideos = await GWVideoModel.find({
+          teachers: { $in: teach._id },
+        }).populate("tags");
+        relatedToolVideos = relatedToolVideos.map((rtw) => {
+          return { ...rtw._doc, type: "tool" };
+        });
+        relatedGWVideos = relatedGWVideos.map((rgw) => {
+          return { ...rgw._doc, type: "groundwork" };
+        });
+        let combineRC = [...relatedGWVideos, ...relatedToolVideos];
+        for (let i = combineRC.length - 1; i > 0; i--) {
+          const j = Math.floor(Math.random() * (i + 1));
+          [combineRC[i], combineRC[j]] = [combineRC[j], combineRC[i]];
+        }
+        return { ...teach?._doc, relatedContent: combineRC };
       })
     );
-    console.log(allTeachers);
     return res.status(200).json({
       status: "success",
       totalTeachers: allTeachers.length,

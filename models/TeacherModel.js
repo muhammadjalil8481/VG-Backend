@@ -1,4 +1,5 @@
 const mongoose = require("mongoose");
+const getVideoDuration = require("../helpers/videoDuration");
 
 const teacherSchema = new mongoose.Schema(
   {
@@ -16,18 +17,15 @@ const teacherSchema = new mongoose.Schema(
     },
     video: {
       type: String,
+      required: true,
     },
- 
+    videoDuration: {
+      type: String,
+    },
     description: {
       type: String,
       required: true,
     },
-    // tags: [
-    //   {
-    //     type: mongoose.Schema.Types.ObjectId,
-    //     ref: "Tag",
-    //   },
-    // ],
     reels: [
       {
         linkName: {
@@ -41,6 +39,11 @@ const teacherSchema = new mongoose.Schema(
   },
   { timestamps: true }
 );
+
+teacherSchema.pre("save", async function (next) {
+  const videoDuration = await getVideoDuration(this.video);
+  this.videoDuration = videoDuration;
+});
 
 const Teacher = mongoose.model("Teacher", teacherSchema);
 

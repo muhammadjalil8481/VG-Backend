@@ -1,4 +1,5 @@
 const GroundWorkCategoryModel = require("../models/GroundWorkCategoryModel");
+const GroundWorkVideoModel = require("../models/GroundWorkVideoModel");
 const generateError = require("../helpers/generateError");
 const deleteFile = require("../helpers/deleteFile");
 const deleteFromCloduinary = require("../helpers/deleteFromCloudinary");
@@ -38,7 +39,6 @@ exports.createGroundWorkCategory = async (req, res, next) => {
     // 4 : Create new groundwork category
     const groundWorkCategory = await GroundWorkCategoryModel.create({
       ...req.body,
-      // icon: `${basePath}${filename}`,
       icon: filename.path,
     });
 
@@ -103,7 +103,15 @@ exports.deleteGroundWorkCategory = async (req, res, next) => {
 
 exports.getAllGroundWorkCategories = async (req, res, next) => {
   try {
-    const gwCategories = await GroundWorkCategoryModel.find();
+    let gwCategories = await GroundWorkCategoryModel.find();
+    gwCategories = await Promise.all(
+      gwCategories.map(async (gwcat) => {
+        const data = await GroundWorkVideoModel.find({
+          category: gwcat._id,
+        }).populate("tags", "name");
+        return { ...gwcat._doc, videos: data };
+      })
+    );
     if (!gwCategories || gwCategories.length < 1)
       return generateError(
         req,
@@ -112,7 +120,7 @@ exports.getAllGroundWorkCategories = async (req, res, next) => {
         "No groundwork categories were found"
       );
     return res.status(200).json({
-      status: "success",
+      status: "ok",
       numOfCategories: gwCategories.length,
       data: gwCategories,
     });

@@ -48,7 +48,11 @@ exports.getGroundWorkVideo = async (req, res, next) => {
     const gwVideo = await GroundWorkVideoModel.findById(id)
       .populate("tags", "name")
       .populate("teachers", "-tags -video -reels -__v")
-      .populate("relatedContent", "title category thumbnail video tags");
+      .populate({
+        path: "relatedContent",
+        select: "title category thumbnail video tags videoDuration",
+        populate: "tags",
+      });
 
     if (!gwVideo)
       return generateError(
@@ -61,7 +65,6 @@ exports.getGroundWorkVideo = async (req, res, next) => {
       postId: id,
       isReply: false,
     })
-      .populate("user", "avatar firstName lastName")
       .populate({
         path: "user",
         select: "avatar firstName lastName",
@@ -70,9 +73,20 @@ exports.getGroundWorkVideo = async (req, res, next) => {
           select: "croppedImage",
         },
       })
+      .populate({
+        path: "reply",
+        populate: {
+          path: "user",
+          select: "avatar firstName lastName",
+          populate: {
+            path: "avatar",
+            select: "croppedImage",
+          },
+        },
+      })
       .sort("-createdAt");
     return res.status(200).json({
-      status: "success",
+      status: "ok",
       data: { ...gwVideo._doc, comments },
     });
   } catch (err) {

@@ -114,9 +114,12 @@ exports.getCommentByVideo = async (req, res, next) => {
 
 exports.replyComment = async (req, res, next) => {
   try {
-    const checkCommentExist = req.comment;
+    // const checkCommentExist = req.comment;
 
-    const { user, docModel, comment, postId } = req.body;
+    const { user, docModel, comment, postId, commentId } = req.body;
+    const checkCommentExist = await Comment.findById(commentId);
+    if (!checkCommentExist)
+      return generateError(req, res, 400, "No Comment found with this id");
     const reply = await Comment.create({
       ...req.body,
       isReply: true,

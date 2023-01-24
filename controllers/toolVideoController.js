@@ -1,4 +1,5 @@
 const ToolVideoModel = require("../models/ToolVideoModel");
+const CommentModel = require("../models/commentModel");
 const generateError = require("../helpers/generateError");
 const deleteFile = require("../helpers/deleteFile");
 const getVideoDuration = require("../helpers/videoDuration");
@@ -28,12 +29,41 @@ exports.getToolVideo = async (req, res, next) => {
     const toolVideo = await ToolVideoModel.findById(id)
       .populate("tags", "name")
       .populate("teachers", "-tags -video -reels -__v")
-      .populate("relatedContent", "title category thumbnail video tags");
+      .populate({
+        path: "relatedContent",
+        select: "title category thumbnail video tags videoDuration",
+        populate: "tags",
+      });
+
     if (!toolVideo)
       return generateError(req, res, 400, "no tool video with this id exist");
+    const comments = await CommentModel.find({
+      postId: id,
+      isReply: false,
+    })
+      .populate({
+        path: "user",
+        select: "avatar firstName lastName",
+        populate: {
+          path: "avatar",
+          select: "croppedImage",
+        },
+      })
+      .populate({
+        path: "reply",
+        populate: {
+          path: "user",
+          select: "avatar firstName lastName",
+          populate: {
+            path: "avatar",
+            select: "croppedImage",
+          },
+        },
+      })
+      .sort("-createdAt");
     return res.status(200).json({
       status: "success",
-      data: { ...toolVideo._doc },
+      data: { ...toolVideo._doc, comments },
     });
   } catch (err) {
     next(err);

@@ -19,9 +19,6 @@ const commentSchema = new mongoose.Schema(
       required: true,
       enum: ["groundWorkVideo", "ToolVideo"],
     },
-    // postId: {
-    //   type: mongoose.Schema.Types.ObjectId,
-    // },
     comment: {
       type: String,
       required: true,
@@ -29,6 +26,7 @@ const commentSchema = new mongoose.Schema(
     reply: [
       {
         type: mongoose.Schema.Types.ObjectId,
+        ref: "Comment",
       },
     ],
     isReply: {

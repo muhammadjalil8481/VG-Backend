@@ -39,7 +39,7 @@ router.get(
   getCommentByVideo
 );
 router.patch(
-  "/replyComment/:id",
+  "/replyComment",
   limitRate,
   // protectRoute,
   replyComment

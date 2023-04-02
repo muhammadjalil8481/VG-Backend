@@ -54,16 +54,6 @@ app.use(cookieParser());
 
 // Static Folder : /uploads
 app.use("/uploads", express.static("uploads"));
-// app.use(express.static(__dirname + '/public'));
-// app.use('/uploads', express.static('uploads'));
-
-// process.on("message", (message) => {
-//   console.log("Recieved:", message);
-//   setTimeout(() => {
-//     process.send("Hello from child process");
-//     process.exit();
-//   }, 3000);
-// });
 
 // CONFIG DOTENV
 dotenv.config("./config.env");
@@ -71,7 +61,6 @@ dotenv.config("./config.env");
 // Run Scheduler To Delete Unverified Users
 cron.schedule(" 0 */10 * * * *", () => {
   deleteUnverifiedUsers();
-  // console.log("delete users");
 });
 
 // LISTEN TO SERVER
@@ -88,7 +77,7 @@ app.use("*", cloudinaryConfig);
 
 const apiRoute = process.env.API_ROUTE;
 
-app.use(apiRoute, authRouter);
+app.use(`${apiRoute}/auth`, authRouter);
 app.use(apiRoute, userRouter);
 app.use(apiRoute, toolVideoRouter);
 app.use(apiRoute, toolCategoryRouter);

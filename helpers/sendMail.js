@@ -8,7 +8,7 @@ const mailSettings = {
   secure: true,
   auth: {
     user: "mjalil5432@gmail.com",
-    pass: "ieardfsztmvvagej",
+    pass: "vtddjpzqwrqauljb",
   },
 };
 

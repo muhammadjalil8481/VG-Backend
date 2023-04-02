@@ -35,7 +35,7 @@ exports.subscribeEmail = async (req, res, next) => {
       sendSubscriptionEmail(email);
     }
     return res.status(200).json({
-      status: "success",
+      status: "ok",
       data: extra,
     });
   } catch (err) {

@@ -12,75 +12,18 @@ const PaymentMethod = require("../models/PaymentModel");
 exports.registerUser = async (req, res, next) => {
   try {
     // 1 : Check request body for credentials
-    const {
-      firstName,
-      lastName,
-      userName,
-      email,
-      // phoneNo,
-      password,
-      confirmPassword,
-    } = req.body;
-    if (
-      !firstName ||
-      !lastName ||
-      !userName ||
-      !email ||
-      !password ||
-      !confirmPassword
-      // !phoneNo
-    ) {
-      return generateError(req, res, 400, "Please provide the required fields");
-    }
+    const { userName, email } = req.body;
 
-    //   2 : Regex for data validation
-    const emailRegex = /^\w+([\.-]?\w+)*@\w+([\.-]?\w+)*(\.\w{2,3})+$/;
-    const nameRegex = /^[A-Za-z]+$/;
-    const passwordRegex = /^[a-zA-Z0-9]*$/;
-    // const phoneNoRegex =
-    //   /^[\+]?[(]?[0-9]{3}[)]?[-\s\.]?[0-9]{3}[-\s\.]?[0-9]{4,6}$/im;
-
-    if (!emailRegex.test(email)) {
-      return generateError(req, res, 400, "Please provide valid email address");
-    }
-
-    if (!nameRegex.test(firstName) || !nameRegex.test(lastName)) {
-      return generateError(
-        req,
-        res,
-        400,
-        "Please provide valid firstName/lastName"
-      );
-    }
-
-    if (!passwordRegex.test(password))
-      return generateError(req, res, 400, "please provide a valid password");
-
-    if (password.length < 6)
-      return generateError(
-        req,
-        res,
-        400,
-        "password must be at least 6 characters"
-      );
-
-    if (password !== confirmPassword)
-      return generateError(
-        req,
-        res,
-        400,
-        "Password and confirmPassword do not match"
-      );
-
-    // !phoneNoRegex.test(phoneNo) &&
-    //   generateError(req, res, 400, "Please provide a valid phone number");
-
-    // 3 : Find if there is an existing user already in the database
+    // 2 : Find if there is an existing user already in the database
     const checkExistingUserEmail = await User.findOne({ email });
     const checkExistingUserName = await User.findOne({ userName });
 
-    if (checkExistingUserEmail?.verified === false) {
-      await User.findByIdAndDelete(checkExistingUserEmail._id);
+    if (
+      checkExistingUserEmail?.verified === false ||
+      checkExistingUserName?.verified === false
+    ) {
+      await User.findByIdAndDelete(checkExistingUserEmail?._id);
+      await User.findByIdAndDelete(checkExistingUserName?._id);
       return generateError(
         req,
         res,
@@ -89,17 +32,6 @@ exports.registerUser = async (req, res, next) => {
         "reload"
       );
     }
-    if (checkExistingUserName?.verified === false) {
-      await User.findByIdAndDelete(checkExistingUserName._id);
-      return generateError(
-        req,
-        res,
-        400,
-        "User is registered but has not completed verification, Please Sign Up Again",
-        "reload"
-      );
-    }
-
     if (
       checkExistingUserEmail?.verified === true ||
       checkExistingUserName?.verified === true
@@ -112,26 +44,13 @@ exports.registerUser = async (req, res, next) => {
       );
     }
 
-    //  4 : Capitalize first and last name
-    const firstNameCap = firstName.charAt(0).toUpperCase() + firstName.slice(1);
-    const lastNameCap = lastName.charAt(0).toUpperCase() + lastName.slice(1);
-
-    // 5 : Generate encryptedPassword
-    const salt = await bcrypt.genSalt(10);
-    const encryptedPassword = await bcrypt.hash(password, salt);
-
-    // 6 : Generate OTP and send email
+    // 3 : Generate OTP and send email
     const otp = otpGenerator();
 
-    // 7: Finally create the user and save to database but unverified
+    // 4: Finally create the user and save to database but unverified
     const newUser = await User.create({
       ...req.body,
-      firstName: firstNameCap,
-      lastName: lastNameCap,
       otp: otp,
-      password: encryptedPassword,
-      isAdmin: false,
-      active: true,
     });
     sendMail(otp, email);
 
@@ -194,6 +113,7 @@ exports.resendOTP = async (req, res, next) => {
   try {
     // 1 : Generate an otp and send mail
     const otp = otpGenerator();
+    console.log(req.body.email);
     sendMail(otp, req.body.email);
     // 2 : Update the user with new otp
     const updatedUser = await User.findOneAndUpdate(
@@ -203,6 +123,13 @@ exports.resendOTP = async (req, res, next) => {
       },
       { new: true }
     );
+    if (!updatedUser)
+      return generateError(
+        req,
+        res,
+        400,
+        "No Account with this email was found"
+      );
     //  3 : Finally return the response
     return res.status(200).json({
       status: "ok",
@@ -339,18 +266,18 @@ exports.loginUser = async (req, res, next) => {
     }
 
     // 3 : Check if user has completed payment or not
-    if (
-      !user.paymentMethod ||
-      user?.paymentMethod?.subsciptionStatus === "inactive"
-    )
-      return generateError(
-        req,
-        res,
-        400,
-        "Please complete payment to continue",
-        "paymentIncomplete",
-        user
-      );
+    // if (
+    //   !user.paymentMethod ||
+    //   user?.paymentMethod?.subsciptionStatus === "inactive"
+    // )
+    //   return generateError(
+    //     req,
+    //     res,
+    //     400,
+    //     "Please complete payment to continue",
+    //     "paymentIncomplete",
+    //     user
+    //   );
 
     // 4 : Check if password is correct
     const passwordMatch = await bcrypt.compare(password, user.password);
@@ -361,18 +288,16 @@ exports.loginUser = async (req, res, next) => {
     const token = jwt.sign({ id: user.id }, process.env.JWT_SECRET, {
       expiresIn: process.env.JWT_EXP,
     });
-    console.log("token generated", token);
     if (!token)
       return generateError(req, res, 401, "Failed to create JWT Token");
 
-    res.cookie("name", "value", {
-      expires: new Date(
-        Date.now() + process.env.JWT_COOKIE_EXP * 24 * 60 * 60 * 1000
-      ), //Cookie expiration time
-      httpOnly: true, //Browser cannot modify cookie
-      // Secure: true,  //Only send cookie if https
-    });
-    console.log("cookie sent");
+    // res.cookie("name", "value", {
+    //   expires: new Date(
+    //     Date.now() + process.env.JWT_COOKIE_EXP * 24 * 60 * 60 * 1000
+    //   ), //Cookie expiration time
+    //   httpOnly: true, //Browser cannot modify cookie
+    //   // Secure: true,  //Only send cookie if https
+    // });
     // 6 : Finally return the user
     return res.status(200).json({
       status: "ok",

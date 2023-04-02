@@ -26,10 +26,10 @@ const router = express.Router();
 // Routes
 router.post("/register", limitRate, registerUser);
 router.post("/login", limitRate, loginUser);
-router.post("/verifyUser", limitRate, verifyUser);
-router.post("/resendOTP", limitOTPRate, resendOTP);
-router.post("/updateForgottenPassword", limitRate, updateForgottenPassword);
-router.post("/updateExistingPassword", limitRate, updateExistingPassword);
+router.patch("/verifyUser", limitRate, verifyUser);
+router.patch("/resendOTP", limitOTPRate, resendOTP);
+router.patch("/updateForgottenPassword", limitRate, updateForgottenPassword);
+router.patch("/updateExistingPassword", limitRate, updateExistingPassword);
 router.post("/acceptPay", limitRate, acceptPay);
 router.patch("/deActivateUser/:id", limitRate, deActivateUser);
 router.patch("/activateUser/:id", limitRate, activateUser);

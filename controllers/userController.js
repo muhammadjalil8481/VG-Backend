@@ -35,7 +35,6 @@ exports.getUser = async (req, res, next) => {
       .populate("paymentMethod")
       .populate("avatar", "title croppedImage")
       .populate("bloom", "title croppedImage");
-    console.log("pass", user.password);
     if (!user)
       return generateError(req, res, 400, "No user found with this id");
     return res.status(200).json({
